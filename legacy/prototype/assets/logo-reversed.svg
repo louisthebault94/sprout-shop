@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 56" fill="none">
+  
+  <rect width="240" height="56" rx="12" fill="#2A9D8F"></rect>
+  <circle cx="28" cy="28" r="20" fill="rgba(255,255,255,0.18)"></circle>
+  <ellipse cx="28" cy="38" rx="7" ry="2" fill="rgba(255,255,255,0.2)"></ellipse>
+  <path d="M28 38 C28 38 28 30 28 24" stroke="white" stroke-width="2.2" stroke-linecap="round"></path>
+  <path d="M28 32 C26.5 30 22 28.5 21 24 C21 24 25 22 28 27" fill="white"></path>
+  <path d="M28 27 C29.5 25 32 22.5 34 18 C34 18 30 18 28 22" fill="white" opacity="0.7"></path>
+  <circle cx="28" cy="23" r="2.2" fill="white" opacity="0.9"></circle>
+  <text x="60" y="36" font-family="Quicksand, Nunito, sans-serif" font-size="26" font-weight="700" fill="white" letter-spacing="-0.3">Sprout</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 96" fill="none">
+  
+  
+  <circle cx="120" cy="32" r="28" fill="#2A9D8F"></circle>
+  <ellipse cx="120" cy="46" rx="10" ry="3" fill="rgba(255,255,255,0.18)"></ellipse>
+  <path d="M120 46 C120 46 120 34 120 25" stroke="white" stroke-width="2.6" stroke-linecap="round"></path>
+  <path d="M120 36 C118 33 111 31 109 23 C109 23 116 20 120 29" fill="white"></path>
+  <path d="M120 29 C122 26 127 22 130 15 C130 15 123 14 120 23" fill="white" opacity="0.65"></path>
+  <circle cx="120" cy="24" r="3" fill="white" opacity="0.9"></circle>
+  
+  <text x="120" y="88" font-family="Quicksand, Nunito, sans-serif" font-size="28" font-weight="700" fill="#1A1714" letter-spacing="-0.3" text-anchor="middle">Sprout</text>
+</svg>

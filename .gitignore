@@ -1,3 +1,13 @@
 .vercel
 .DS_Store
 node_modules/
+
+# Env
+.env
+.env.local
+.env*.local
+
+# Next.js
+.next/
+out/
+next-env.d.ts
