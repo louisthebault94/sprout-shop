@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprout — Shop UI Kit</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FDFAF6; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #F7F3EE; } ::-webkit-scrollbar-thumb { background: #D6CFC6; border-radius: 9999px; }
+
+  /* ── Mobile responsive overrides ─────────────────────── */
+  @media (max-width: 768px) {
+    /* Nav */
+    .nav-search { display: none !important; }
+    .nav-get-started { display: none !important; }
+
+    /* Hero */
+    .hero-inner { flex-direction: column !important; padding: 32px 20px 24px !important; }
+    .hero-illustration { display: none !important; }
+    .hero-h1 { font-size: 32px !important; }
+    .hero-sub { font-size: 15px !important; }
+
+    /* Category grid */
+    .cat-grid { grid-template-columns: repeat(4, 1fr) !important; }
+
+    /* Browse layout */
+    .browse-layout { flex-direction: column !important; padding: 16px 16px !important; }
+    .filter-panel { position: static !important; width: 100% !important; display: none; }
+    .filter-panel.open { display: block !important; margin-bottom: 16px; }
+    .mobile-filter-btn { display: inline-flex !important; }
+
+    /* Resource grid */
+    .resource-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+    /* Listing layout */
+    .listing-layout { grid-template-columns: 1fr !important; gap: 24px !important; padding: 16px !important; }
+    .listing-left { position: static !important; }
+    .listing-preview-box { height: 200px !important; }
+    .listing-title { font-size: 24px !important; }
+    .listing-reviews-grid { grid-template-columns: 1fr !important; }
+    .listing-rating-overview { flex-direction: column !important; }
+
+    /* Featured grids */
+    .featured-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .section-inner { padding: 0 16px !important; }
+    .section-pad { padding: 32px 0 !important; }
+
+    /* Trust strip */
+    .trust-strip { flex-wrap: wrap !important; gap: 10px !important; padding: 12px 16px !important; justify-content: center !important; }
+    .trust-divider { display: none !important; }
+  }
+
+  @media (max-width: 480px) {
+    .cat-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .resource-grid { grid-template-columns: 1fr 1fr !important; }
+    .cta-btns { flex-direction: column !important; }
+    .hero-cta-row { flex-direction: column !important; align-items: flex-start !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="Header.jsx"></script>
+<script type="text/babel" src="ResourceCard.jsx"></script>
+<script type="text/babel" src="FilterPanel.jsx"></script>
+<script type="text/babel" src="HeroSection.jsx"></script>
+<script type="text/babel" src="ListingPage.jsx"></script>
+<script type="text/babel" src="CartPage.jsx"></script>
+<script type="text/babel" src="AuthPage.jsx"></script>
+<script type="text/babel" src="UploadPage.jsx"></script>
+
+<script type="text/babel">
+// ── Sample data ────────────────────────────────────────────
+const RESOURCES = [
+  { id:1,  title: 'Year 3 Multiplication Worksheets',               subject: 'Mathematics', type: 'Worksheets',     yearGroup: 'Year 3',      price: 4.50, rating: 4.9, reviewCount: 31, state: 'default',    pageCount: 20, isNew: false, curriculum: 'both' },
+  { id:2,  title: 'Phonics Flashcard Set — Phase 3',                subject: 'English',     type: 'Flashcards',     yearGroup: 'Year 1',      price: 0,    rating: 4.6, reviewCount: 18, state: 'free',       pageCount: 36, isNew: true,  curriculum: 'both' },
+  { id:3,  title: 'Living Things Unit — Full Pack',                  subject: 'Science',     type: 'Activity Pack',  yearGroup: 'Year 2',      price: 7.00, rating: 5.0, reviewCount: 7,  state: 'locked',     pageCount: 28, isNew: false, curriculum: 'AU'   },
+  { id:4,  title: 'Visual Arts Lesson Plans Years 4–6',              subject: 'The Arts',    type: 'Lesson Plans',   yearGroup: 'Year 4–6',    price: 5.00, rating: 4.8, reviewCount: 12, state: 'purchased',  pageCount: 18, isNew: false, curriculum: 'both' },
+  { id:5,  title: 'Reading Comprehension — NAPLAN Style',            subject: 'English',     type: 'Assessments',    yearGroup: 'Year 5–6',    price: 6.00, rating: 4.7, reviewCount: 22, state: 'default',    pageCount: 16, isNew: true,  curriculum: 'AU'   },
+  { id:6,  title: 'Australian Communities — HASS Unit',              subject: 'HASS',        type: 'Activity Pack',  yearGroup: 'Year 3–4',    price: 5.50, rating: 4.5, reviewCount: 9,  state: 'default',    pageCount: 24, isNew: false, curriculum: 'AU'   },
+  { id:7,  title: 'Fractions &amp; Decimals — Digital Slides',       subject: 'Mathematics', type: 'Digital Slides', yearGroup: 'Year 4',      price: 4.00, rating: 4.8, reviewCount: 14, state: 'locked',     pageCount: 32, isNew: false, curriculum: 'both' },
+  { id:8,  title: 'Persuasive Writing Scaffold Pack',                subject: 'English',     type: 'Worksheets',     yearGroup: 'Year 5–6',    price: 3.50, rating: 4.9, reviewCount: 27, state: 'default',    pageCount: 12, isNew: false, curriculum: 'both' },
+  { id:9,  title: 'Plants &amp; Growth Science Journal',             subject: 'Science',     type: 'Worksheets',     yearGroup: 'Year 1–2',    price: 0,    rating: 4.4, reviewCount: 11, state: 'free',       pageCount: 14, isNew: true,  curriculum: 'both' },
+  { id:10, title: 'Wellbeing &amp; Resilience Activities',           subject: 'HPE',         type: 'Activity Pack',  yearGroup: 'Year 1–3',    price: 4.00, rating: 4.6, reviewCount: 8,  state: 'default',    pageCount: 20, isNew: false, curriculum: 'AU'   },
+  { id:11, title: 'Addition &amp; Subtraction Fact Fluency Cards',   subject: 'Mathematics', type: 'Flashcards',     yearGroup: 'Year 1–2',    price: 2.50, rating: 4.7, reviewCount: 33, state: 'default',    pageCount: 48, isNew: false, curriculum: 'both' },
+  { id:12, title: 'Design Thinking — Technologies Unit',             subject: 'Technologies',type: 'Lesson Plans',   yearGroup: 'Year 3–4',    price: 5.00, rating: 4.5, reviewCount: 6,  state: 'default',    pageCount: 22, isNew: true,  curriculum: 'AU'   },
+  { id:13, title: 'Foundation Literacy — Letter Formation Pack',     subject: 'English',     type: 'Worksheets',     yearGroup: 'Foundation',  price: 0,    rating: 4.8, reviewCount: 41, state: 'free',       pageCount: 30, isNew: false, curriculum: 'both' },
+  { id:14, title: 'Geography of Australia — Year 5–6 HASS',         subject: 'HASS',        type: 'Activity Pack',  yearGroup: 'Year 5–6',    price: 6.50, rating: 4.6, reviewCount: 15, state: 'default',    pageCount: 26, isNew: false, curriculum: 'AU'   },
+  { id:15, title: 'Movement &amp; Body Awareness — Foundation HPE',  subject: 'HPE',         type: 'Lesson Plans',   yearGroup: 'Foundation',  price: 3.00, rating: 4.7, reviewCount: 10, state: 'default',    pageCount: 16, isNew: true,  curriculum: 'AU'   },
+  { id:16, title: 'KS2 Fractions &amp; Percentages Pack',            subject: 'Mathematics', type: 'Worksheets',     yearGroup: 'Year 5–6',    price: 4.50, rating: 4.8, reviewCount: 19, state: 'default',    pageCount: 18, isNew: false, curriculum: 'UK'   },
+  { id:17, title: 'SPaG Booster — KS2 Grammar &amp; Punctuation',   subject: 'English',     type: 'Worksheets',     yearGroup: 'Year 5–6',    price: 3.50, rating: 4.7, reviewCount: 24, state: 'default',    pageCount: 20, isNew: true,  curriculum: 'UK'   },
+  { id:18, title: 'KS1 Number &amp; Place Value Activities',         subject: 'Mathematics', type: 'Activity Pack',  yearGroup: 'Year 1–2',    price: 0,    rating: 4.6, reviewCount: 16, state: 'free',       pageCount: 24, isNew: false, curriculum: 'UK'   },
+  { id:19, title: 'UK History — Castles &amp; Invaders KS2',        subject: 'HASS',        type: 'Activity Pack',  yearGroup: 'Year 3–4',    price: 5.50, rating: 4.5, reviewCount: 11, state: 'default',    pageCount: 22, isNew: false, curriculum: 'UK'   },
+  { id:20, title: 'PSHE — Feelings &amp; Relationships Year 2',     subject: 'HPE',         type: 'Worksheets',     yearGroup: 'Year 2',      price: 3.00, rating: 4.7, reviewCount: 8,  state: 'default',    pageCount: 16, isNew: true,  curriculum: 'UK'   },
+];
+
+// ── Browse screen ──────────────────────────────────────────
+function BrowseScreen({ onSelectResource, cartCount }) {
+  const [filters, setFilters] = React.useState({ curriculum: 'AU', subjects: [], yearGroups: [], resourceTypes: [], priceMin: '', priceMax: '' });
+  const [sort, setSort] = React.useState('popular');
+  const [search, setSearch] = React.useState('');
+  const [filterOpen, setFilterOpen] = React.useState(false);
+
+  const filtered = React.useMemo(() => {
+    let res = [...RESOURCES];
+    // Curriculum filter — show curriculum-specific + 'both'
+    res = res.filter(r => r.curriculum === filters.curriculum || r.curriculum === 'both');
+    if (filters.subjects.length) res = res.filter(r => filters.subjects.includes(r.subject));
+    if (filters.resourceTypes.length) res = res.filter(r => filters.resourceTypes.includes(r.type));
+    if (search) res = res.filter(r => r.title.toLowerCase().includes(search.toLowerCase()) || r.subject.toLowerCase().includes(search.toLowerCase()));
+    if (sort === 'popular') res.sort((a,b) => b.reviewCount - a.reviewCount);
+    if (sort === 'rating') res.sort((a,b) => b.rating - a.rating);
+    if (sort === 'price-low') res.sort((a,b) => a.price - b.price);
+    if (sort === 'price-high') res.sort((a,b) => b.price - a.price);
+    if (sort === 'newest') res.sort((a,b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+    return res;
+  }, [filters, sort, search]);
+
+  const activeFilterCount = filters.subjects.length + filters.yearGroups.length + filters.resourceTypes.length + (filters.priceMin ? 1 : 0) + (filters.priceMax ? 1 : 0);
+
+  return (
+    <div style={{ background: '#FDFAF6', minHeight: '100vh' }}>
+      {/* Browse header */}
+      <div style={{ background: '#fff', borderBottom: '1px solid #EDE8E2', padding: '20px 0' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <h1 style={{ fontFamily: "'Nunito', sans-serif", fontSize: '28px', fontWeight: 800, color: '#1A1714' }}>Browse resources</h1>
+              <p style={{ fontSize: '14px', color: '#9E958A', marginTop: '2px' }}>{filtered.length} resources · {filters.curriculum === 'AU' ? 'Australian Curriculum' : 'UK National Curriculum'}</p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              {/* Mobile filter toggle */}
+              <button
+                className="mobile-filter-btn"
+                onClick={() => setFilterOpen(o => !o)}
+                style={{ display: 'none', alignItems: 'center', gap: '6px', padding: '8px 14px', border: '1.5px solid #D6CFC6', borderRadius: '9999px', background: filterOpen ? '#2A9D8F' : '#fff', color: filterOpen ? '#fff' : '#635C55', fontSize: '13px', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+                Filters{activeFilterCount > 0 && <span style={{ background: '#F4A261', color: '#fff', borderRadius: '9999px', width: '18px', height: '18px', fontSize: '10px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{activeFilterCount}</span>}
+              </button>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9E958A' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </span>
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter results…" style={{ padding: '8px 12px 8px 32px', border: '1.5px solid #D6CFC6', borderRadius: '9999px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', background: '#F7F3EE', outline: 'none', width: '200px', color: '#1A1714' }} />
+              </div>
+              <select value={sort} onChange={e => setSort(e.target.value)} style={{ padding: '8px 12px', border: '1.5px solid #D6CFC6', borderRadius: '8px', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#1A1714', background: '#fff', cursor: 'pointer', outline: 'none' }}>
+                <option value="popular">Most popular</option>
+                <option value="rating">Highest rated</option>
+                <option value="newest">Newest first</option>
+                <option value="price-low">Price: low to high</option>
+                <option value="price-high">Price: high to low</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '28px 32px', display: 'flex', gap: '28px', alignItems: 'flex-start' }} className="browse-layout">
+        <div className={`filter-panel${filterOpen ? ' open' : ''}`}>
+          <FilterPanel filters={filters} onChange={setFilters} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {filtered.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '64px 0', color: '#9E958A', fontFamily: "'DM Sans', sans-serif" }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔍</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>No results yet</div>
+              <div style={{ fontSize: '14px' }}>Try adjusting your filters or switching curriculum.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }} className="resource-grid">
+              {filtered.map(r => (
+                <ResourceCard key={r.id} resource={r} onClick={onSelectResource} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Home screen ─────────────────────────────────────────────
+function HomeScreen({ onBrowse, onSelectResource }) {
+  const featured = RESOURCES.filter(r => r.rating >= 4.7).slice(0, 4);
+  const recent = RESOURCES.filter(r => r.isNew).slice(0, 3);
+
+  return (
+    <div style={{ background: '#FDFAF6' }}>
+      <HeroSection onBrowse={onBrowse} />
+
+      {/* Featured resources */}
+      <section style={{ background: '#fff', padding: '48px 0' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 32px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <h2 style={{ fontFamily: "'Nunito', sans-serif", fontSize: '28px', fontWeight: 800, color: '#1A1714' }}>Top rated resources</h2>
+            <button onClick={onBrowse} style={{ background: 'none', border: 'none', color: '#2A9D8F', fontWeight: 600, fontSize: '14px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>View all →</button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }} className="featured-grid">
+            {featured.map(r => <ResourceCard key={r.id} resource={r} onClick={onSelectResource} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* Recently added */}
+      {recent.length > 0 && (
+        <section style={{ padding: '48px 0' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 32px' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '24px' }}>
+              <h2 style={{ fontFamily: "'Nunito', sans-serif", fontSize: '28px', fontWeight: 800, color: '#1A1714' }}>Recently added</h2>
+              <button onClick={onBrowse} style={{ background: 'none', border: 'none', color: '#2A9D8F', fontWeight: 600, fontSize: '14px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>See all new →</button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }} className="featured-grid">
+              {recent.map(r => <ResourceCard key={r.id} resource={r} onClick={onSelectResource} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Footer trust */}
+      <footer style={{ background: '#1A1714', color: '#fff', padding: '40px 32px', textAlign: 'center' }}>
+        <div style={{ fontFamily: "'Quicksand', 'Nunito', sans-serif", fontSize: '22px', fontWeight: 700, marginBottom: '8px', color: '#fff' }}>Sprout</div>
+        <div style={{ fontSize: '13px', color: '#9E958A', fontFamily: "'DM Sans', sans-serif" }}>Quality teaching resources for Australian and UK primary classrooms.</div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+          {['About', 'Contact', 'Privacy', 'Terms', 'Refunds'].map(l => (
+            <span key={l} style={{ fontSize: '13px', color: '#635C55', fontFamily: "'DM Sans', sans-serif", cursor: 'pointer' }}>{l}</span>
+          ))}
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// ── Root App ─────────────────────────────────────────────────
+function App() {
+  const [screen, setScreen] = React.useState('home');
+  const [selectedResource, setSelectedResource] = React.useState(null);
+  const [cart, setCart] = React.useState([
+    // Pre-seed cart with 2 items so cart page is interesting on first visit
+    { id:1, title:'Year 3 Multiplication Worksheets', subject:'Mathematics', type:'Worksheets', yearGroup:'Year 3', price:4.50, pageCount:20 },
+    { id:8, title:'Persuasive Writing Scaffold Pack', subject:'English', type:'Worksheets', yearGroup:'Year 5–6', price:3.50, pageCount:12 },
+  ]);
+
+  const navigate = (s) => { setScreen(s); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+  const handleSelectResource = (r) => {
+    setSelectedResource(r);
+    setScreen('listing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleAddToCart = (r) => {
+    setCart(prev => prev.find(x => x.id === r.id) ? prev : [...prev, r]);
+  };
+
+  const handleRemoveFromCart = (id) => {
+    setCart(prev => prev.filter(r => r.id !== id));
+  };
+
+  // Hide header on auth screen (centred card layout)
+  const showHeader = screen !== 'auth';
+
+  return (
+    <div>
+      {showHeader && <Header cartCount={cart.length} onNavigate={navigate} currentScreen={screen} />}
+      {screen === 'home'    && <HomeScreen onBrowse={() => navigate('browse')} onSelectResource={handleSelectResource} />}
+      {screen === 'browse'  && <BrowseScreen onSelectResource={handleSelectResource} cartCount={cart.length} />}
+      {screen === 'listing' && selectedResource && (
+        <ListingPage resource={selectedResource} onBack={() => navigate('browse')} onAddToCart={handleAddToCart} />
+      )}
+      {screen === 'cart' && (
+        <CartPage cart={cart} onRemove={handleRemoveFromCart} onCheckout={() => navigate('auth')} onBrowse={() => navigate('browse')} />
+      )}
+      {screen === 'auth' && (
+        <AuthPage onSuccess={() => navigate('home')} onBack={() => navigate('home')} />
+      )}
+      {screen === 'upload' && (
+        <UploadPage onBack={() => navigate('browse')} />
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

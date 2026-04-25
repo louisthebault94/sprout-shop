@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 56" fill="none">
+  
+  <circle cx="28" cy="28" r="28" fill="#2A9D8F"></circle>
+  
+  <ellipse cx="28" cy="42" rx="10" ry="3" fill="rgba(255,255,255,0.18)"></ellipse>
+  
+  <path d="M28 42 C28 42 28 30 28 22" stroke="white" stroke-width="2.4" stroke-linecap="round"></path>
+  
+  <path d="M28 32 C26 30 20 28 18 21 C18 21 24 18 28 26" fill="white"></path>
+  
+  <path d="M28 26 C30 23 34 20 37 14 C37 14 31 13 28 20" fill="white" opacity="0.65"></path>
+  
+  <circle cx="28" cy="21" r="2.5" fill="white" opacity="0.9"></circle>
+
+  
+  <text x="68" y="37" font-family="Quicksand, Nunito, sans-serif" font-size="30" font-weight="700" fill="#1A1714" letter-spacing="-0.4">Sprout</text>
+</svg>
