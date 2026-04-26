@@ -148,7 +148,9 @@ export default function ListingClient({ resource, initialPurchased = false }: { 
                   <span style={{ fontSize: "20px" }}>✓</span>
                   <span style={s.purchasedTitle}>You&apos;ve purchased this resource</span>
                 </div>
-                <button style={s.btnDownload}>↓ Download now</button>
+                <a href={`/api/download/${resource.id}`} style={{ ...s.btnDownload, display: "block", textAlign: "center", textDecoration: "none" }}>
+                  ↓ Download now
+                </a>
                 <div style={{ fontSize: "12px", color: "#3D9A6A", marginTop: "8px", fontFamily: "'DM Sans', sans-serif", textAlign: "center" }}>
                   Also saved in your downloads library
                 </div>
@@ -156,7 +158,9 @@ export default function ListingClient({ resource, initialPurchased = false }: { 
             ) : resource.price === 0 || resource.state === "free" ? (
               <div style={s.ctaBlock}>
                 <div style={s.priceDisplay}>Free</div>
-                <button style={s.btnPrimary} onClick={() => setPaywallState("purchased")}>↓ Free download</button>
+                <a href={`/api/download/${resource.id}`} style={{ ...s.btnPrimary, display: "block", textAlign: "center", textDecoration: "none" }}>
+                  ↓ Free download
+                </a>
                 <div style={s.trustRow}>
                   <span style={s.trustItem}>No account needed</span>
                   <span style={s.trustItem}>Instant download</span>
