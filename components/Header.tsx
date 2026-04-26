@@ -62,6 +62,7 @@ export default function Header() {
           )}
           {isLoaded && isSignedIn && (
             <>
+              <Link href="/library" style={s.btnGhost}>My library</Link>
               <Link href="/upload" style={s.btnOutline}>+ Upload</Link>
               <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 36, height: 36 } } }} />
             </>
