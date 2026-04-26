@@ -1,7 +1,7 @@
 "use client";
 
 import { CSSProperties } from "react";
-import { ALL_SUBJECTS, ALL_TYPES, ALL_YEARS } from "@/lib/resources";
+import { ALL_SUBJECTS, ALL_TYPES, ALL_YEARS } from "@/lib/resource-types";
 
 export type Filters = {
   curriculum: "AU" | "UK";

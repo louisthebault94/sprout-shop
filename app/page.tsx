@@ -1,11 +1,14 @@
 import Link from "next/link";
 import HeroSection from "@/components/HeroSection";
 import ResourceCard from "@/components/ResourceCard";
-import { RESOURCES } from "@/lib/resources";
+import { listResources } from "@/lib/resources";
 
-export default function HomePage() {
-  const featured = RESOURCES.filter((r) => r.rating >= 4.7).slice(0, 4);
-  const recent = RESOURCES.filter((r) => r.isNew).slice(0, 3);
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const all = await listResources();
+  const featured = all.filter((r) => r.rating >= 4.7).slice(0, 4);
+  const recent = all.filter((r) => r.isNew).slice(0, 3);
 
   return (
     <div style={{ background: "#FDFAF6" }}>

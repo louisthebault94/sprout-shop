@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { CSSProperties } from "react";
 import { useCart } from "@/lib/cart-context";
-import { SUBJECT_COLORS } from "@/lib/resources";
+import { SUBJECT_COLORS } from "@/lib/resource-types";
 
 export default function CartPage() {
   const { cart, removeFromCart } = useCart();

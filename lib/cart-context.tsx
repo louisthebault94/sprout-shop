@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import type { Resource } from "./resources";
+import type { Resource } from "./resource-types";
 
 export type CartItem = Pick<Resource, "id" | "title" | "subject" | "type" | "yearGroup" | "price" | "pageCount">;
 

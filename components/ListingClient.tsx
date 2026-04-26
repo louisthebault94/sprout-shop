@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useState, CSSProperties } from "react";
 import { useCart } from "@/lib/cart-context";
 import CheckoutModal from "./CheckoutModal";
-import type { Resource, ResourceState } from "@/lib/resources";
-import { SUBJECT_COLORS } from "@/lib/resources";
+import type { Resource, ResourceState } from "@/lib/resource-types";
+import { SUBJECT_COLORS } from "@/lib/resource-types";
 
 const reviews = [
   { author: "Sarah T.", role: "Year 3 teacher, VIC", rating: 5, text: "Absolutely love this pack. My students were engaged the whole lesson and the differentiation saved me so much planning time." },

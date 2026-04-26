@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, CSSProperties } from "react";
-import { Resource, SUBJECT_COLORS } from "@/lib/resources";
+import { Resource, SUBJECT_COLORS } from "@/lib/resource-types";
 
 function Stars({ rating }: { rating: number }) {
   const full = Math.floor(rating);

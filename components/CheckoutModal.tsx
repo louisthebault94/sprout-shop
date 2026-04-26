@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, CSSProperties } from "react";
-import type { Resource } from "@/lib/resources";
+import type { Resource } from "@/lib/resource-types";
 
 type Step = "cart" | "payment" | "success";
 

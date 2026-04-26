@@ -1,14 +1,16 @@
 import { notFound } from "next/navigation";
-import { getResource, RESOURCES } from "@/lib/resources";
+import { getResource } from "@/lib/resources";
 import ListingClient from "@/components/ListingClient";
 
-export function generateStaticParams() {
-  return RESOURCES.map((r) => ({ id: String(r.id) }));
-}
+export const revalidate = 60;
 
 export default async function ListingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const resource = getResource(Number(id));
+  const numericId = Number(id);
+  if (!Number.isFinite(numericId)) notFound();
+
+  const resource = await getResource(numericId);
   if (!resource) notFound();
+
   return <ListingClient resource={resource} />;
 }
