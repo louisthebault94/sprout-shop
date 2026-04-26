@@ -258,9 +258,21 @@ export default function ListingClient({ resource, initialPurchased = false }: { 
           <h2 style={s.reviewsTitle}>
             What teachers are saying
             <span style={{ fontSize: "18px", fontWeight: 400, color: "#9E958A", marginLeft: "10px" }}>
-              ({resource.reviewCount} reviews)
+              ({resource.reviewCount} {resource.reviewCount === 1 ? "review" : "reviews"})
             </span>
           </h2>
+          {resource.reviewCount === 0 ? (
+            <div style={{ background: "#fff", border: "1px solid #EDE8E2", borderRadius: "16px", padding: "48px 24px", textAlign: "center" }}>
+              <div style={{ fontSize: "32px", marginBottom: "10px" }}>⭐</div>
+              <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: "16px", fontWeight: 700, color: "#1A1714", marginBottom: "6px" }}>
+                No reviews yet
+              </div>
+              <div style={{ fontSize: "13px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
+                Be the first to share your thoughts after using this in your classroom.
+              </div>
+            </div>
+          ) : (
+            <>
           <div style={s.ratingOverview} className="listing-rating-overview">
             <div style={{ textAlign: "center", padding: "16px 24px", borderRight: "1px solid #EDE8E2" }}>
               <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: "48px", fontWeight: 800, color: "#1A1714", lineHeight: 1 }}>
@@ -303,6 +315,8 @@ export default function ListingClient({ resource, initialPurchased = false }: { 
               </div>
             ))}
           </div>
+            </>
+          )}
         </section>
       </div>
     </div>

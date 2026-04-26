@@ -17,11 +17,6 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = "sprout-cart-v1";
 
-const SEED: CartItem[] = [
-  { id: 1, title: "Year 3 Multiplication Worksheets", subject: "Mathematics", type: "Worksheets", yearGroup: "Year 3", price: 4.5, pageCount: 20 },
-  { id: 8, title: "Persuasive Writing Scaffold Pack", subject: "English", type: "Worksheets", yearGroup: "Year 5–6", price: 3.5, pageCount: 12 },
-];
-
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -29,13 +24,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        setCart(JSON.parse(raw));
-      } else {
-        setCart(SEED);
-      }
+      if (raw) setCart(JSON.parse(raw));
     } catch {
-      setCart(SEED);
+      // Ignore — starts empty.
     }
     setHydrated(true);
   }, []);
