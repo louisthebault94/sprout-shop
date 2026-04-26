@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState, CSSProperties } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { useCart } from "@/lib/cart-context";
-import CheckoutModal from "./CheckoutModal";
 import type { Resource, ResourceState } from "@/lib/resource-types";
 import { SUBJECT_COLORS } from "@/lib/resource-types";
 
@@ -13,35 +14,61 @@ const reviews = [
   { author: "James K.", role: "Parent, NSW", rating: 4, text: "Great for home learning — my daughter found it fun and not too difficult. The answer key was a bonus!" },
 ];
 
-export default function ListingClient({ resource }: { resource: Resource }) {
-  const [paywallState, setPaywallState] = useState<ResourceState | "previewing">(resource.state ?? "locked");
+export default function ListingClient({ resource, initialPurchased = false }: { resource: Resource; initialPurchased?: boolean }) {
+  const initial: ResourceState | "previewing" = initialPurchased
+    ? "purchased"
+    : ((resource.state ?? "locked") as ResourceState);
+  const [paywallState, setPaywallState] = useState<ResourceState | "previewing">(initial);
   const [activeTab, setActiveTab] = useState<"description" | "what's included" | "curriculum">("description");
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const router = useRouter();
+  const { isSignedIn } = useUser();
   const { addToCart } = useCart();
 
   const sc = SUBJECT_COLORS[resource.subject] ?? SUBJECT_COLORS.Mathematics;
 
+  const handleBuyNow = async () => {
+    if (!isSignedIn) {
+      router.push(`/sign-in?redirect_url=${encodeURIComponent(`/r/${resource.id}`)}`);
+      return;
+    }
+    setCheckoutLoading(true);
+    setCheckoutError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ resourceIds: [resource.id] }),
+      });
+      const data = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        setCheckoutError(data.error ?? "Could not start checkout");
+        setCheckoutLoading(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setCheckoutError("Network error — please try again");
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: resource.id,
+      title: resource.title,
+      subject: resource.subject,
+      type: resource.type,
+      yearGroup: resource.yearGroup,
+      price: resource.price,
+      pageCount: resource.pageCount,
+    });
+    router.push("/cart");
+  };
+
   return (
     <div style={s.page}>
-      {showCheckout && (
-        <CheckoutModal
-          resource={resource}
-          onClose={() => setShowCheckout(false)}
-          onComplete={() => {
-            setPaywallState("purchased");
-            addToCart({
-              id: resource.id,
-              title: resource.title,
-              subject: resource.subject,
-              type: resource.type,
-              yearGroup: resource.yearGroup,
-              price: resource.price,
-              pageCount: resource.pageCount,
-            });
-          }}
-        />
-      )}
-
       <div style={s.inner}>
         <div style={s.breadcrumb}>
           <Link href="/browse" style={s.breadcrumbBtn}>← Browse</Link>
@@ -142,9 +169,14 @@ export default function ListingClient({ resource }: { resource: Resource }) {
                   <span style={{ fontSize: "13px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>AUD</span>
                 </div>
                 <div style={s.ctaBtns} className="cta-btns">
-                  <button style={s.btnPrimary} onClick={() => setShowCheckout(true)}>Add to cart</button>
-                  <button style={s.btnBuyNow} onClick={() => setShowCheckout(true)}>Buy now</button>
+                  <button style={s.btnPrimary} onClick={handleAddToCart} disabled={checkoutLoading}>Add to cart</button>
+                  <button style={{ ...s.btnBuyNow, opacity: checkoutLoading ? 0.7 : 1 }} onClick={handleBuyNow} disabled={checkoutLoading}>
+                    {checkoutLoading ? "Redirecting…" : "Buy now"}
+                  </button>
                 </div>
+                {checkoutError && (
+                  <div style={{ fontSize: "12px", color: "#E63946", textAlign: "center", marginBottom: "8px", fontFamily: "'DM Sans', sans-serif" }}>{checkoutError}</div>
+                )}
                 <div style={s.trustRow}>
                   <span style={s.trustItem}>🔒 Secure checkout</span>
                   <span style={s.trustItem}>↓ Instant download</span>

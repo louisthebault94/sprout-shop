@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent, CSSProperties } from "react";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { useCart } from "@/lib/cart-context";
 
 export default function Header() {
   const [searchVal, setSearchVal] = useState("");
   const router = useRouter();
   const { count: cartCount } = useCart();
+  const { isSignedIn, isLoaded } = useUser();
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
@@ -52,9 +54,18 @@ export default function Header() {
         </form>
 
         <div style={s.actions}>
-          <Link href="/auth" style={s.btnGhost}>Sign in</Link>
-          <Link href="/upload" style={s.btnOutline}>+ Upload</Link>
-          <Link href="/" style={{ ...s.btnPrimary, ...s.navGetStarted }} className="nav-get-started">Get started</Link>
+          {isLoaded && !isSignedIn && (
+            <>
+              <Link href="/sign-in" style={s.btnGhost}>Sign in</Link>
+              <Link href="/sign-up" style={{ ...s.btnPrimary, ...s.navGetStarted }} className="nav-get-started">Get started</Link>
+            </>
+          )}
+          {isLoaded && isSignedIn && (
+            <>
+              <Link href="/upload" style={s.btnOutline}>+ Upload</Link>
+              <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 36, height: 36 } } }} />
+            </>
+          )}
           <Link href="/cart" style={s.cartBtn} aria-label="Cart">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <circle cx="8" cy="21" r="1" />
@@ -93,7 +104,7 @@ const s: Record<string, CSSProperties> = {
     fontFamily: "'DM Sans', sans-serif", fontSize: "14px", background: "#F7F3EE", color: "#1A1714",
     outline: "none", transition: "border-color 150ms", boxSizing: "border-box",
   },
-  actions: { display: "flex", alignItems: "center", gap: "6px", marginLeft: "auto", flexShrink: 0 },
+  actions: { display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto", flexShrink: 0 },
   btnGhost: { padding: "7px 16px", borderRadius: "9999px", fontSize: "14px", fontWeight: 600, fontFamily: "'DM Sans', sans-serif", cursor: "pointer", border: "none", background: "transparent", color: "#635C55" },
   btnOutline: { padding: "7px 14px", borderRadius: "9999px", fontSize: "14px", fontWeight: 600, fontFamily: "'DM Sans', sans-serif", cursor: "pointer", border: "1.5px solid #2A9D8F", background: "transparent", color: "#2A9D8F" },
   btnPrimary: { padding: "8px 18px", borderRadius: "9999px", fontSize: "14px", fontWeight: 600, fontFamily: "'DM Sans', sans-serif", cursor: "pointer", border: "none", background: "#2A9D8F", color: "#fff" },

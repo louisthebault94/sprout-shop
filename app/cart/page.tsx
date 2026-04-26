@@ -1,15 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import { CSSProperties } from "react";
+import { CSSProperties, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { useCart } from "@/lib/cart-context";
 import { SUBJECT_COLORS } from "@/lib/resource-types";
 
 export default function CartPage() {
   const { cart, removeFromCart } = useCart();
+  const router = useRouter();
+  const { isSignedIn } = useUser();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const total = cart.reduce((sum, r) => sum + (r.price || 0), 0);
   const freeItems = cart.filter((r) => !r.price || r.price === 0);
   const paidItems = cart.filter((r) => r.price > 0);
+
+  const handleCheckout = async () => {
+    if (paidItems.length === 0) {
+      // Free-only cart — for MVP just send to home; download wiring comes later.
+      router.push("/");
+      return;
+    }
+    if (!isSignedIn) {
+      router.push(`/sign-in?redirect_url=${encodeURIComponent("/cart")}`);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ resourceIds: paidItems.map((r) => r.id) }),
+      });
+      const data = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        setError(data.error ?? "Could not start checkout");
+        setLoading(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setError("Network error — please try again");
+      setLoading(false);
+    }
+  };
 
   if (cart.length === 0) {
     return (
@@ -90,9 +127,16 @@ export default function CartPage() {
               </span>
             </div>
 
-            <Link href="/auth" style={{ ...s.btnPrimary, display: "block", textAlign: "center", textDecoration: "none" }}>
-              {total > 0 ? `Checkout · $${total.toFixed(2)}` : "Download all free"}
-            </Link>
+            <button
+              onClick={handleCheckout}
+              disabled={loading}
+              style={{ ...s.btnPrimary, opacity: loading ? 0.7 : 1 }}
+            >
+              {loading ? "Redirecting…" : total > 0 ? `Checkout · $${total.toFixed(2)}` : "Download all free"}
+            </button>
+            {error && (
+              <div style={{ fontSize: "12px", color: "#E63946", textAlign: "center", marginBottom: "8px", fontFamily: "'DM Sans', sans-serif" }}>{error}</div>
+            )}
 
             <div style={s.trustRow}>
               <span style={s.trustItem}>🔒 Secure checkout</span>
