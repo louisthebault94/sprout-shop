@@ -53,11 +53,17 @@ export default async function HomePage() {
         <div style={{ fontSize: "13px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
           Quality teaching resources for Australian and UK primary classrooms.
         </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginTop: "20px" }}>
-          {["About", "Contact", "Privacy", "Terms", "Refunds"].map((l) => (
-            <span key={l} style={{ fontSize: "13px", color: "#635C55", fontFamily: "'DM Sans', sans-serif" }}>
-              {l}
-            </span>
+        <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginTop: "20px", flexWrap: "wrap" }}>
+          {[
+            ["About", "/about"],
+            ["Contact", "/contact"],
+            ["Privacy", "/privacy"],
+            ["Terms", "/terms"],
+            ["Refunds", "/refunds"],
+          ].map(([label, href]) => (
+            <Link key={href} href={href} style={{ fontSize: "13px", color: "#635C55", fontFamily: "'DM Sans', sans-serif" }}>
+              {label}
+            </Link>
           ))}
         </div>
       </footer>
