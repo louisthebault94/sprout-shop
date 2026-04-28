@@ -6,7 +6,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy policy" updated="28 April 2026">
       <p>
-        This policy explains what personal data Sprout collects, how we use it, and the rights you have over it. Sprout is operated by Brett Thebault, based in the United Kingdom.
+        This policy explains what personal data Sprout collects, how we use it, and the rights you have over it. Sprout is operated by Louis Thebault, based in Australia.
       </p>
 
       <h2>1. What we collect</h2>
@@ -40,23 +40,30 @@ export default function PrivacyPage() {
       <h2>4. Cookies</h2>
       <p>We use only essential cookies needed to keep you signed in and remember your cart. We do not currently use analytics or advertising cookies.</p>
 
-      <h2>5. Your rights</h2>
-      <p>If you&apos;re in the UK or EU, the UK GDPR / GDPR gives you rights to access, correct, delete, or export your personal data, and to object to or restrict our processing of it. Australian users have similar rights under the Privacy Act 1988. To exercise any of these rights, email <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a>.</p>
+      <h2>5. Your rights under the Privacy Act</h2>
+      <p>The Australian Privacy Act 1988 and its 13 Australian Privacy Principles (APPs) give you rights to:</p>
+      <ul>
+        <li>Access the personal information we hold about you.</li>
+        <li>Ask us to correct it if it&apos;s wrong.</li>
+        <li>Ask us to delete it (subject to legal record-keeping requirements).</li>
+        <li>Withdraw consent for any non-essential processing.</li>
+      </ul>
+      <p>To exercise any of these rights, email <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a>. We&apos;ll respond within 30 days.</p>
 
       <h2>6. How long we keep it</h2>
-      <p>We keep account and purchase records for as long as your account exists. After you close your account, we keep purchase records for 7 years to meet UK and Australian tax-record obligations, then delete them.</p>
+      <p>We keep account and purchase records for as long as your account exists. After you close your account, we keep purchase records for 7 years to meet Australian tax-record obligations, then delete them.</p>
 
       <h2>7. International transfers</h2>
-      <p>Some of our processors store data outside the UK (e.g. in the US or EU). Where that happens, we rely on the legal mechanisms (Standard Contractual Clauses, UK adequacy decisions) the providers have in place.</p>
+      <p>Some of our processors store data outside Australia (e.g. in the US or EU). Where that happens, we rely on the contractual safeguards (Standard Contractual Clauses, equivalent protections under APP 8) the providers have in place.</p>
 
       <h2>8. Children</h2>
-      <p>Sprout is sold to adults (teachers, tutors, parents). We do not knowingly collect personal data from children under 16.</p>
+      <p>Sprout is sold to adults (teachers, tutors, parents). We do not knowingly collect personal data from children under 18.</p>
 
       <h2>9. Changes</h2>
       <p>We&apos;ll update the &quot;last updated&quot; date at the top of this page when this policy changes. For significant changes we&apos;ll also notify you by email.</p>
 
-      <h2>10. Contact</h2>
-      <p>Questions or complaints: <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a>. UK users can also complain to the Information Commissioner&apos;s Office (ico.org.uk). Australian users can complain to the Office of the Australian Information Commissioner (oaic.gov.au).</p>
+      <h2>10. Contact and complaints</h2>
+      <p>Questions or complaints: <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a>. If you&apos;re not satisfied with our response you can complain to the Office of the Australian Information Commissioner at <a href="https://www.oaic.gov.au">oaic.gov.au</a>.</p>
     </LegalPage>
   );
 }

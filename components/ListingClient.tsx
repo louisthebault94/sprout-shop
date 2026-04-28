@@ -239,16 +239,6 @@ export default function ListingClient({ resource, initialPurchased = false }: { 
                     Aligned to {resource.yearGroup} content descriptions in the {resource.subject} learning area. Covers key concepts identified in the AC v9.0 achievement standards.
                   </p>
                 </div>
-                <div style={s.curriculumBlock}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <span style={{ ...s.chip, background: "#FDECEE", color: "#E63946", fontSize: "12px" }}>
-                      UK National Curriculum
-                    </span>
-                  </div>
-                  <p style={s.bodyText}>
-                    Also suitable for UK KS1–KS2 {resource.subject} — maps to Key Stage statutory requirements.
-                  </p>
-                </div>
               </div>
             )}
           </div>

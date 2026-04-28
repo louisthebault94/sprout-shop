@@ -4,7 +4,6 @@ import { CSSProperties } from "react";
 import { ALL_SUBJECTS, ALL_TYPES, ALL_YEARS } from "@/lib/resource-types";
 
 export type Filters = {
-  curriculum: "AU" | "UK";
   subjects: string[];
   yearGroups: string[];
   resourceTypes: string[];
@@ -13,7 +12,6 @@ export type Filters = {
 };
 
 export const EMPTY_FILTERS: Filters = {
-  curriculum: "AU",
   subjects: [],
   yearGroups: [],
   resourceTypes: [],
@@ -28,7 +26,7 @@ export default function FilterPanel({
   filters: Filters;
   onChange: (f: Filters) => void;
 }) {
-  const { curriculum, subjects, yearGroups, resourceTypes, priceMin, priceMax } = filters;
+  const { subjects, yearGroups, resourceTypes, priceMin, priceMax } = filters;
 
   const toggle = (arr: string[], val: string) => (arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
 
@@ -37,21 +35,6 @@ export default function FilterPanel({
       <div style={s.header}>
         <span style={s.title}>Filters</span>
         <button style={s.resetBtn} onClick={() => onChange(EMPTY_FILTERS)}>Reset</button>
-      </div>
-
-      <div style={s.section}>
-        <div style={s.sectionLabel}>Curriculum</div>
-        <div style={s.toggle}>
-          {(["AU", "UK"] as const).map((c) => (
-            <button
-              key={c}
-              style={{ ...s.toggleOpt, ...(curriculum === c ? s.toggleActive : {}) }}
-              onClick={() => onChange({ ...filters, curriculum: c })}
-            >
-              {c === "AU" ? "AU Curriculum" : "UK National"}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div style={s.section}>

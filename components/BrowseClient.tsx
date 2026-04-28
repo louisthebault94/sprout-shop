@@ -24,7 +24,6 @@ function BrowseInner({ resources }: { resources: Resource[] }) {
 
   const filtered = useMemo(() => {
     let res = [...resources];
-    res = res.filter((r) => r.curriculum === filters.curriculum || r.curriculum === "both");
     if (filters.subjects.length) res = res.filter((r) => filters.subjects.includes(r.subject));
     if (filters.yearGroups.length) res = res.filter((r) => filters.yearGroups.includes(r.yearGroup));
     if (filters.resourceTypes.length) res = res.filter((r) => filters.resourceTypes.includes(r.type));
@@ -55,7 +54,7 @@ function BrowseInner({ resources }: { resources: Resource[] }) {
             <div>
               <h1 style={{ fontFamily: "'Nunito', sans-serif", fontSize: "28px", fontWeight: 800, color: "#1A1714" }}>Browse resources</h1>
               <p style={{ fontSize: "14px", color: "#9E958A", marginTop: "2px" }}>
-                {filtered.length} resources · {filters.curriculum === "AU" ? "Australian Curriculum" : "UK National Curriculum"}
+                {filtered.length} resources · Australian Curriculum v9.0
               </p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
@@ -124,7 +123,7 @@ function BrowseInner({ resources }: { resources: Resource[] }) {
             <div style={{ textAlign: "center", padding: "64px 0", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
               <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔍</div>
               <div style={{ fontSize: "16px", fontWeight: 600, marginBottom: "6px" }}>No results yet</div>
-              <div style={{ fontSize: "14px" }}>Try adjusting your filters or switching curriculum.</div>
+              <div style={{ fontSize: "14px" }}>Try adjusting your filters.</div>
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }} className="resource-grid">

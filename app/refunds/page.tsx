@@ -19,13 +19,22 @@ export default function RefundsPage() {
       <h2>When we usually won&apos;t refund</h2>
       <ul>
         <li>You&apos;ve already downloaded the resource and changed your mind.</li>
-        <li>You bought the wrong year group / curriculum and didn&apos;t check the listing.</li>
+        <li>You bought the wrong year group or subject and didn&apos;t check the listing.</li>
         <li>The resource works correctly but you don&apos;t personally like it.</li>
       </ul>
-      <p>This is consistent with the Consumer Contracts Regulations (UK) for digital content where supply has begun and the consumer has acknowledged their right of withdrawal will be lost, and with the Australian Consumer Law for digital products that work as described.</p>
 
-      <h2>Your statutory rights</h2>
-      <p>Nothing in this policy affects your statutory consumer rights. UK customers have rights under the Consumer Rights Act 2015. Australian customers have rights under the Australian Consumer Law. If a resource is faulty, not fit for purpose, or not as described, you&apos;re entitled to a remedy regardless of what this policy says.</p>
+      <h2>Your rights under the Australian Consumer Law</h2>
+      <p>
+        Nothing in this policy affects your rights under the Australian Consumer Law (ACL). You&apos;re entitled to a refund, replacement, or remedy if a resource:
+      </p>
+      <ul>
+        <li>Has a major fault (e.g. is unusable, doesn&apos;t do what was advertised, or doesn&apos;t match the description).</li>
+        <li>Is unsafe.</li>
+        <li>Doesn&apos;t match a sample shown on the listing.</li>
+      </ul>
+      <p>
+        You&apos;re also entitled to compensation for any reasonably foreseeable loss or damage caused by a major fault. These rights apply regardless of what this policy says.
+      </p>
 
       <h2>How to ask for a refund</h2>
       <p>Email <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a> with:</p>

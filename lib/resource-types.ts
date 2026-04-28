@@ -1,7 +1,7 @@
 // UI-side constants and types for resources.
 // Pure data — safe to import from both client and server components.
 
-export type Curriculum = "AU" | "UK" | "both";
+export type Curriculum = "AU";
 export type ResourceState = "default" | "free" | "locked" | "purchased";
 
 export type Resource = {

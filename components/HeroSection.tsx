@@ -26,7 +26,7 @@ export default function HeroSection() {
       <section style={s.hero}>
         <div style={s.heroInner} className="hero-inner">
           <div style={s.heroContent}>
-            <div style={s.eyebrow}>Trusted by teachers across Australia &amp; the UK 🌱</div>
+            <div style={s.eyebrow}>Trusted by teachers across Australia 🇦🇺 🌱</div>
             <h1 style={s.h1} className="hero-h1">
               Ready-to-teach resources<br />for primary classrooms
             </h1>

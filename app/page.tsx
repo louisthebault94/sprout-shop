@@ -51,7 +51,7 @@ export default async function HomePage() {
       <footer style={{ background: "#1A1714", color: "#fff", padding: "40px 32px", textAlign: "center" }}>
         <div style={{ fontFamily: "'Quicksand', 'Nunito', sans-serif", fontSize: "22px", fontWeight: 700, marginBottom: "8px", color: "#fff" }}>Sprout</div>
         <div style={{ fontSize: "13px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
-          Quality teaching resources for Australian and UK primary classrooms.
+          Quality teaching resources aligned to the Australian Curriculum v9.0.
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginTop: "20px", flexWrap: "wrap" }}>
           {[

@@ -28,15 +28,13 @@ type FormState = {
   price: string;
   isFree: boolean;
   description: string;
-  curriculum: string[];
   acStrands: string[];
   pageCount: string;
 };
 
 const EMPTY_FORM: FormState = {
   title: "", subject: "", yearFrom: "", yearTo: "", type: "",
-  price: "", isFree: false, description: "", curriculum: [],
-  acStrands: [], pageCount: "",
+  price: "", isFree: false, description: "", acStrands: [], pageCount: "",
 };
 
 export default function UploadForm() {
@@ -56,8 +54,6 @@ export default function UploadForm() {
   };
   const selectStyle: CSSProperties = { ...inputStyle, cursor: "pointer" };
 
-  const toggleCurriculum = (c: string) =>
-    set("curriculum", form.curriculum.includes(c) ? form.curriculum.filter((x) => x !== c) : [...form.curriculum, c]);
   const toggleStrand = (st: string) =>
     set("acStrands", form.acStrands.includes(st) ? form.acStrands.filter((x) => x !== st) : [...form.acStrands, st]);
 
@@ -72,10 +68,6 @@ export default function UploadForm() {
     try {
       const yearGroup =
         form.yearTo && form.yearTo !== form.yearFrom ? `${form.yearFrom}–${form.yearTo}` : form.yearFrom;
-      const curriculum: "AU" | "UK" | "both" =
-        form.curriculum.includes("AU") && form.curriculum.includes("UK") ? "both"
-        : form.curriculum.includes("UK") ? "UK"
-        : "AU";
 
       const payload = {
         title: form.title,
@@ -85,7 +77,7 @@ export default function UploadForm() {
         price: form.isFree ? 0 : parseFloat(form.price) || 0,
         isFree: form.isFree,
         description: form.description,
-        curriculum,
+        curriculum: "AU" as const,
         pageCount: parseInt(form.pageCount, 10) || 0,
       };
 
@@ -197,32 +189,14 @@ export default function UploadForm() {
           {step === 1 && (
             <div style={s.stepBody}>
               <h2 style={s.stepTitle}>Curriculum alignment</h2>
-              <p style={s.stepSub}>Help buyers find your resource by aligning it to one or both curricula.</p>
-              <div style={{ marginBottom: "24px" }}>
-                <label style={s.label}>Curriculum *</label>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  {([["AU", "Australian Curriculum v9.0"], ["UK", "UK National Curriculum"]] as const).map(([val, lbl]) => (
-                    <button
-                      key={val}
-                      type="button"
-                      style={{
-                        flex: 1, padding: "12px 16px", borderRadius: "12px",
-                        border: `2px solid ${form.curriculum.includes(val) ? "#2A9D8F" : "#EDE8E2"}`,
-                        background: form.curriculum.includes(val) ? "#E8F5F3" : "#fff",
-                        color: form.curriculum.includes(val) ? "#2A9D8F" : "#635C55",
-                        fontSize: "14px", fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                        cursor: "pointer", transition: "all 150ms",
-                      }}
-                      onClick={() => toggleCurriculum(val)}
-                    >
-                      <div style={{ fontSize: "18px", marginBottom: "4px" }}>{val === "AU" ? "🇦🇺" : "🇬🇧"}</div>
-                      {lbl}
-                      {form.curriculum.includes(val) && <div style={{ fontSize: "12px", color: "#2A9D8F", marginTop: "3px" }}>✓ Selected</div>}
-                    </button>
-                  ))}
+              <p style={s.stepSub}>Tag this resource with the Australian Curriculum v9.0 strands it covers — buyers use this to find what they need.</p>
+              <div style={{ marginBottom: "20px", padding: "12px 14px", background: "#E8F5F3", borderRadius: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "20px" }}>🇦🇺</span>
+                <div style={{ fontSize: "13px", fontFamily: "'DM Sans', sans-serif", color: "#1A1714" }}>
+                  <strong>Australian Curriculum v9.0</strong> — all Sprout resources are aligned to AC v9.0.
                 </div>
               </div>
-              {form.curriculum.includes("AU") && form.subject && (
+              {form.subject && (acStrands[form.subject] ?? []).length > 0 && (
                 <div>
                   <label style={s.label}>AC v9.0 strands (select all that apply)</label>
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -245,6 +219,11 @@ export default function UploadForm() {
                     ))}
                   </div>
                 </div>
+              )}
+              {!form.subject && (
+                <p style={{ fontSize: "13px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
+                  Pick a subject in step 1 to see relevant strands.
+                </p>
               )}
             </div>
           )}
@@ -313,7 +292,7 @@ export default function UploadForm() {
                   ["Subject & type", !!(form.subject && form.type)],
                   ["Year group", !!form.yearFrom],
                   ["Pricing set", !!(form.isFree || form.price)],
-                  ["Curriculum alignment", form.curriculum.length > 0],
+                  ["AC strands tagged", form.acStrands.length > 0],
                   ["File attached", !!file],
                 ].map(([label, ok]) => (
                   <div key={String(label)} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 0", borderBottom: "1px solid #F7F3EE" }}>

@@ -11,7 +11,7 @@ type ResourcePayload = {
   price: number;
   isFree: boolean;
   description: string;
-  curriculum: "AU" | "UK" | "both";
+  curriculum: "AU";
   pageCount: number;
 };
 
