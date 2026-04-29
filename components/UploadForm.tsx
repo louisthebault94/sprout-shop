@@ -102,9 +102,9 @@ export default function UploadForm() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "32px" }}>
           <button style={s.backBtn} onClick={() => router.push("/browse")}>←</button>
           <div>
-            <h1 style={s.pageTitle}>Upload a resource</h1>
+            <h1 style={s.pageTitle}>Publish a resource</h1>
             <p style={{ fontSize: "13px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
-              Share your teaching resources with thousands of educators
+              Admin only — add a new resource to the Sprout shop
             </p>
           </div>
         </div>

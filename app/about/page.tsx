@@ -13,7 +13,7 @@ export default function AboutPage() {
       <p>Most teachers spend evenings hunting for or rewriting resources. Sprout exists to give that time back: every resource is aligned to the Australian Curriculum v9.0, proofread, and ready to use as-is.</p>
 
       <h2>Who runs it</h2>
-      <p>Sprout is run by Louis Thebault from Australia. Get in touch via the <a href="/contact">contact page</a> if you have feedback, ideas for resources you&apos;d like to see, or you&apos;re a teacher interested in selling your own.</p>
+      <p>Sprout is run by Louis Thebault from Australia. Every resource on the site is curated, proofread, and published in-house — Sprout isn&apos;t a marketplace. Get in touch via the <a href="/contact">contact page</a> with feedback or ideas for resources you&apos;d like to see.</p>
 
       <h2>How it works</h2>
       <ul>

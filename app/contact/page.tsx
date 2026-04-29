@@ -24,7 +24,7 @@ export default function ContactPage() {
         For access, correction, deletion, or any other data-protection request, email <a href="mailto:louis@thebault.com.au">louis@thebault.com.au</a>. See the <a href="/privacy">privacy policy</a> for full details.
       </p>
 
-      <h2>Press, partnerships, and sellers</h2>
+      <h2>Press and partnerships</h2>
       <p>
         Same address — <a href="mailto:louis@thebault.com.au">louis@thebault.com.au</a>. Drop us a line and we&apos;ll get back to you.
       </p>

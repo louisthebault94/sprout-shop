@@ -10,7 +10,11 @@ export default function Header() {
   const [searchVal, setSearchVal] = useState("");
   const router = useRouter();
   const { count: cartCount } = useCart();
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase().trim();
+  const isAdmin =
+    !!adminEmail &&
+    !!user?.emailAddresses.some((e) => e.emailAddress.toLowerCase() === adminEmail);
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
@@ -63,7 +67,7 @@ export default function Header() {
           {isLoaded && isSignedIn && (
             <>
               <Link href="/library" style={s.btnGhost}>My library</Link>
-              <Link href="/upload" style={s.btnOutline}>+ Upload</Link>
+              {isAdmin && <Link href="/upload" style={s.btnOutline}>+ Upload</Link>}
               <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 36, height: 36 } } }} />
             </>
           )}
