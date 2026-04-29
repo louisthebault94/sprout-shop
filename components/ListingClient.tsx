@@ -11,7 +11,7 @@ import { SUBJECT_COLORS } from "@/lib/resource-types";
 const reviews = [
   { author: "Sarah T.", role: "Year 3 teacher, VIC", rating: 5, text: "Absolutely love this pack. My students were engaged the whole lesson and the differentiation saved me so much planning time." },
   { author: "Rachel M.", role: "Tutor, QLD", rating: 5, text: "Well structured, clear layout, and perfectly matched to the Australian Curriculum v9. Will definitely buy more." },
-  { author: "James K.", role: "Parent, NSW", rating: 4, text: "Great for home learning — my daughter found it fun and not too difficult. The answer key was a bonus!" },
+  { author: "James K.", role: "Parent, QLD", rating: 4, text: "Great for home learning — my daughter found it fun and not too difficult. The answer key was a bonus!" },
 ];
 
 export default function ListingClient({ resource, initialPurchased = false }: { resource: Resource; initialPurchased?: boolean }) {

@@ -37,7 +37,7 @@ export default function RefundsPage() {
       </p>
 
       <h2>How to ask for a refund</h2>
-      <p>Email <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a> with:</p>
+      <p>Email <a href="mailto:louis@thebault.com.au">louis@thebault.com.au</a> with:</p>
       <ul>
         <li>The email address on your Sprout account.</li>
         <li>The receipt or order ID from your Stripe email.</li>

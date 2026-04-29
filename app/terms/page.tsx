@@ -51,10 +51,10 @@ export default function TermsPage() {
       <p>We may update these terms occasionally. Material changes will be notified by email and take effect 14 days after notice.</p>
 
       <h2>11. Governing law</h2>
-      <p>These terms are governed by the laws of New South Wales, Australia. Any dispute will be heard in the courts of New South Wales, except where the Australian Consumer Law gives you the right to bring proceedings in your home state or territory.</p>
+      <p>These terms are governed by the laws of Queensland, Australia. Any dispute will be heard in the courts of Queensland, except where the Australian Consumer Law gives you the right to bring proceedings in your home state or territory.</p>
 
       <h2>12. Contact</h2>
-      <p>Questions about these terms: <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a>.</p>
+      <p>Questions about these terms: <a href="mailto:louis@thebault.com.au">louis@thebault.com.au</a>.</p>
     </LegalPage>
   );
 }

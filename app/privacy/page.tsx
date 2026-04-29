@@ -48,7 +48,7 @@ export default function PrivacyPage() {
         <li>Ask us to delete it (subject to legal record-keeping requirements).</li>
         <li>Withdraw consent for any non-essential processing.</li>
       </ul>
-      <p>To exercise any of these rights, email <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a>. We&apos;ll respond within 30 days.</p>
+      <p>To exercise any of these rights, email <a href="mailto:louis@thebault.com.au">louis@thebault.com.au</a>. We&apos;ll respond within 30 days.</p>
 
       <h2>6. How long we keep it</h2>
       <p>We keep account and purchase records for as long as your account exists. After you close your account, we keep purchase records for 7 years to meet Australian tax-record obligations, then delete them.</p>
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
       <p>We&apos;ll update the &quot;last updated&quot; date at the top of this page when this policy changes. For significant changes we&apos;ll also notify you by email.</p>
 
       <h2>10. Contact and complaints</h2>
-      <p>Questions or complaints: <a href="mailto:brett@thebault.co.uk">brett@thebault.co.uk</a>. If you&apos;re not satisfied with our response you can complain to the Office of the Australian Information Commissioner at <a href="https://www.oaic.gov.au">oaic.gov.au</a>.</p>
+      <p>Questions or complaints: <a href="mailto:louis@thebault.com.au">louis@thebault.com.au</a>. If you&apos;re not satisfied with our response you can complain to the Office of the Australian Information Commissioner at <a href="https://www.oaic.gov.au">oaic.gov.au</a>.</p>
     </LegalPage>
   );
 }
