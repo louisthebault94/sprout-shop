@@ -1,20 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { useState, CSSProperties } from "react";
+import { useState, useTransition, CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useCart } from "@/lib/cart-context";
 import type { Resource, ResourceState } from "@/lib/resource-types";
 import { SUBJECT_COLORS } from "@/lib/resource-types";
+import type { Review } from "@/lib/reviews";
+import { submitReview } from "@/app/r/[id]/actions";
 
-const reviews = [
-  { author: "Sarah T.", role: "Year 3 teacher, VIC", rating: 5, text: "Absolutely love this pack. My students were engaged the whole lesson and the differentiation saved me so much planning time." },
-  { author: "Rachel M.", role: "Tutor, QLD", rating: 5, text: "Well structured, clear layout, and perfectly matched to the Australian Curriculum v9. Will definitely buy more." },
-  { author: "James K.", role: "Parent, QLD", rating: 4, text: "Great for home learning — my daughter found it fun and not too difficult. The answer key was a bonus!" },
-];
+type RatingBreakdown = Record<1 | 2 | 3 | 4 | 5, number>;
 
-export default function ListingClient({ resource, initialPurchased = false }: { resource: Resource; initialPurchased?: boolean }) {
+function relativeTime(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
+}
+
+export default function ListingClient({
+  resource,
+  initialPurchased = false,
+  reviews,
+  ratingBreakdown,
+  canReview,
+  alreadyReviewed,
+}: {
+  resource: Resource;
+  initialPurchased?: boolean;
+  reviews: Review[];
+  ratingBreakdown: RatingBreakdown;
+  canReview: boolean;
+  alreadyReviewed: boolean;
+}) {
   const initial: ResourceState | "previewing" = initialPurchased
     ? "purchased"
     : ((resource.state ?? "locked") as ResourceState);
@@ -251,6 +277,14 @@ export default function ListingClient({ resource, initialPurchased = false }: { 
               ({resource.reviewCount} {resource.reviewCount === 1 ? "review" : "reviews"})
             </span>
           </h2>
+
+          {canReview && <ReviewForm resourceId={resource.id} />}
+          {alreadyReviewed && (
+            <div style={{ background: "#E8F5F3", border: "1px solid #8FD1CA", borderRadius: "12px", padding: "14px 18px", fontSize: "13px", color: "#2A9D8F", fontFamily: "'DM Sans', sans-serif", marginBottom: "20px" }}>
+              ✓ Thanks for reviewing this resource — your review is published below.
+            </div>
+          )}
+
           {resource.reviewCount === 0 ? (
             <div style={{ background: "#fff", border: "1px solid #EDE8E2", borderRadius: "16px", padding: "48px 24px", textAlign: "center" }}>
               <div style={{ fontSize: "32px", marginBottom: "10px" }}>⭐</div>
@@ -258,58 +292,169 @@ export default function ListingClient({ resource, initialPurchased = false }: { 
                 No reviews yet
               </div>
               <div style={{ fontSize: "13px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
-                Be the first to share your thoughts after using this in your classroom.
+                {canReview
+                  ? "Use this in your classroom, then come back and share your thoughts."
+                  : "Be the first to buy this resource and share your thoughts."}
               </div>
             </div>
           ) : (
             <>
-          <div style={s.ratingOverview} className="listing-rating-overview">
-            <div style={{ textAlign: "center", padding: "16px 24px", borderRight: "1px solid #EDE8E2" }}>
-              <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: "48px", fontWeight: 800, color: "#1A1714", lineHeight: 1 }}>
-                {resource.rating}
-              </div>
-              <div style={{ color: "#F4A261", fontSize: "18px", letterSpacing: "3px", margin: "4px 0" }}>
-                {"★".repeat(Math.floor(resource.rating))}
-              </div>
-              <div style={{ fontSize: "12px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
-                {resource.reviewCount} reviews
-              </div>
-            </div>
-            <div style={{ flex: 1, padding: "16px 24px", display: "flex", flexDirection: "column", gap: "6px", justifyContent: "center" }}>
-              {[5, 4, 3, 2, 1].map((n) => (
-                <div key={n} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "12px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif", width: "8px" }}>{n}</span>
-                  <span style={{ color: "#F4A261", fontSize: "12px" }}>★</span>
-                  <div style={{ flex: 1, height: "6px", background: "#EDE8E2", borderRadius: "3px", overflow: "hidden" }}>
-                    <div style={{ height: "100%", background: "#F4A261", borderRadius: "3px", width: n === 5 ? "78%" : n === 4 ? "15%" : n === 3 ? "5%" : "1%" }} />
+              <div style={s.ratingOverview} className="listing-rating-overview">
+                <div style={{ textAlign: "center", padding: "16px 24px", borderRight: "1px solid #EDE8E2" }}>
+                  <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: "48px", fontWeight: 800, color: "#1A1714", lineHeight: 1 }}>
+                    {resource.rating.toFixed(1)}
                   </div>
-                  <span style={{ fontSize: "11px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif", width: "24px" }}>
-                    {n === 5 ? "78%" : n === 4 ? "15%" : n === 3 ? "5%" : "1%"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={s.reviewsGrid} className="listing-reviews-grid">
-            {reviews.map((r, i) => (
-              <div key={i} style={s.reviewCard}>
-                <div style={s.reviewHeader}>
-                  <div style={s.reviewAvatar}>{r.author[0]}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={s.reviewAuthor}>{r.author}</div>
-                    <div style={s.reviewRole}>{r.role}</div>
+                  <div style={{ color: "#F4A261", fontSize: "18px", letterSpacing: "3px", margin: "4px 0" }}>
+                    {"★".repeat(Math.round(resource.rating))}
                   </div>
-                  <div style={{ color: "#F4A261", fontSize: "13px", letterSpacing: "1px" }}>{"★".repeat(r.rating)}</div>
+                  <div style={{ fontSize: "12px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
+                    {resource.reviewCount} {resource.reviewCount === 1 ? "review" : "reviews"}
+                  </div>
                 </div>
-                <p style={s.reviewText}>{r.text}</p>
+                <div style={{ flex: 1, padding: "16px 24px", display: "flex", flexDirection: "column", gap: "6px", justifyContent: "center" }}>
+                  {([5, 4, 3, 2, 1] as const).map((n) => {
+                    const count = ratingBreakdown[n] ?? 0;
+                    const pct = resource.reviewCount > 0 ? Math.round((count / resource.reviewCount) * 100) : 0;
+                    return (
+                      <div key={n} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ fontSize: "12px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif", width: "8px" }}>{n}</span>
+                        <span style={{ color: "#F4A261", fontSize: "12px" }}>★</span>
+                        <div style={{ flex: 1, height: "6px", background: "#EDE8E2", borderRadius: "3px", overflow: "hidden" }}>
+                          <div style={{ height: "100%", background: "#F4A261", borderRadius: "3px", width: `${pct}%` }} />
+                        </div>
+                        <span style={{ fontSize: "11px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif", width: "32px", textAlign: "right" }}>
+                          {pct}%
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            ))}
-          </div>
+              <div style={s.reviewsGrid} className="listing-reviews-grid">
+                {reviews.map((r) => (
+                  <div key={r.id} style={s.reviewCard}>
+                    <div style={s.reviewHeader}>
+                      <div style={s.reviewAvatar}>{r.authorName[0]?.toUpperCase() ?? "?"}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={s.reviewAuthor}>{r.authorName}</div>
+                        <div style={s.reviewRole}>{relativeTime(r.createdAt)}</div>
+                      </div>
+                      <div style={{ color: "#F4A261", fontSize: "13px", letterSpacing: "1px" }}>{"★".repeat(r.rating)}</div>
+                    </div>
+                    {r.text && <p style={s.reviewText}>{r.text}</p>}
+                  </div>
+                ))}
+              </div>
             </>
           )}
         </section>
       </div>
     </div>
+  );
+}
+
+function ReviewForm({ resourceId }: { resourceId: number }) {
+  const [rating, setRating] = useState(0);
+  const [hovered, setHovered] = useState(0);
+  const [text, setText] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (rating < 1) {
+      setError("Pick a star rating");
+      return;
+    }
+    startTransition(async () => {
+      const result = await submitReview(resourceId, rating, text);
+      if (!result.ok) setError(result.error);
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={s.reviewForm}>
+      <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: "16px", fontWeight: 800, color: "#1A1714", marginBottom: "10px" }}>
+        Leave a review
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "12px" }}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setRating(n)}
+            onMouseEnter={() => setHovered(n)}
+            onMouseLeave={() => setHovered(0)}
+            disabled={pending}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: pending ? "default" : "pointer",
+              fontSize: "28px",
+              color: (hovered || rating) >= n ? "#F4A261" : "#D6CFC6",
+              transition: "color 100ms",
+              lineHeight: 1,
+            }}
+            aria-label={`Rate ${n} star${n === 1 ? "" : "s"}`}
+          >
+            ★
+          </button>
+        ))}
+        {rating > 0 && (
+          <span style={{ marginLeft: "10px", fontSize: "13px", color: "#635C55", fontFamily: "'DM Sans', sans-serif" }}>
+            {rating} of 5
+          </span>
+        )}
+      </div>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Optional — what worked well? What could be better?"
+        disabled={pending}
+        maxLength={1000}
+        style={{
+          width: "100%",
+          minHeight: "80px",
+          padding: "10px 12px",
+          border: "1.5px solid #D6CFC6",
+          borderRadius: "10px",
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "14px",
+          color: "#1A1714",
+          background: "#FDFAF6",
+          outline: "none",
+          resize: "vertical",
+          boxSizing: "border-box",
+        }}
+      />
+      {error && (
+        <div style={{ fontSize: "13px", color: "#E63946", fontFamily: "'DM Sans', sans-serif", marginTop: "8px" }}>
+          {error}
+        </div>
+      )}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px" }}>
+        <button
+          type="submit"
+          disabled={pending}
+          style={{
+            padding: "10px 22px",
+            borderRadius: "9999px",
+            background: "#2A9D8F",
+            color: "#fff",
+            fontSize: "14px",
+            fontWeight: 700,
+            fontFamily: "'DM Sans', sans-serif",
+            border: "none",
+            cursor: pending ? "default" : "pointer",
+            opacity: pending ? 0.7 : 1,
+          }}
+        >
+          {pending ? "Posting…" : "Post review"}
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -364,4 +509,5 @@ const s: Record<string, CSSProperties> = {
   reviewAuthor: { fontFamily: "'DM Sans', sans-serif", fontSize: "13px", fontWeight: 700, color: "#1A1714" },
   reviewRole: { fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: "#9E958A" },
   reviewText: { fontFamily: "'DM Sans', sans-serif", fontSize: "13px", color: "#635C55", lineHeight: 1.65, margin: 0 },
+  reviewForm: { background: "#fff", border: "1px solid #EDE8E2", borderRadius: "16px", padding: "18px 20px", marginBottom: "20px", boxShadow: "0 1px 3px rgba(26,23,20,0.04)" },
 };

@@ -36,3 +36,18 @@ CREATE TABLE IF NOT EXISTS purchases (
 );
 
 CREATE INDEX IF NOT EXISTS purchases_user_idx ON purchases (user_id);
+
+CREATE TABLE IF NOT EXISTS reviews (
+  id          SERIAL PRIMARY KEY,
+  resource_id INT  NOT NULL REFERENCES resources(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL,
+  rating      INT  NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  text        TEXT,
+  author_name TEXT NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, resource_id)
+);
+
+CREATE INDEX IF NOT EXISTS reviews_resource_idx ON reviews (resource_id);
+CREATE INDEX IF NOT EXISTS reviews_created_idx  ON reviews (created_at DESC);
