@@ -228,12 +228,15 @@ export default function ListingClient({
 
             {activeTab === "description" && (
               <div style={s.tabContent}>
-                <p style={s.bodyText}>
-                  This comprehensive pack gives you everything needed to teach {resource.subject} to {resource.yearGroup} students. Designed by experienced Australian primary teachers — ready to print and teach with no extra prep.
-                </p>
-                <p style={s.bodyText}>
-                  Includes differentiated activities for three ability levels, ensuring every student is challenged and supported. Full answer key included.
-                </p>
+                {resource.description ? (
+                  resource.description.split("\n").filter((p) => p.trim().length > 0).map((para, i) => (
+                    <p key={i} style={s.bodyText}>{para}</p>
+                  ))
+                ) : (
+                  <p style={{ ...s.bodyText, fontStyle: "italic", color: "#9E958A" }}>
+                    No description provided.
+                  </p>
+                )}
               </div>
             )}
             {activeTab === "what's included" && (

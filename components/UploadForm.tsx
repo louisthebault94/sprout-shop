@@ -9,15 +9,6 @@ const UPLOAD_STEPS = ["Details", "Curriculum", "Files", "Preview & publish"];
 const subjects = ["Mathematics", "English", "Science", "HASS", "The Arts", "HPE", "Technologies"];
 const years = ["Foundation", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 const types = ["Worksheets", "Lesson Plans", "Flashcards", "Activity Pack", "Assessments", "Digital Slides"];
-const acStrands: Record<string, string[]> = {
-  Mathematics: ["Number", "Algebra", "Measurement", "Space", "Statistics", "Probability"],
-  English: ["Language", "Literature", "Literacy"],
-  Science: ["Biological sciences", "Chemical sciences", "Earth sciences", "Physical sciences"],
-  HASS: ["History", "Geography", "Civics & Citizenship", "Economics & Business"],
-  "The Arts": ["Visual Arts", "Music", "Drama", "Dance", "Media Arts"],
-  HPE: ["Personal, Social & Community Health", "Movement & Physical Activity"],
-  Technologies: ["Design & Technologies", "Digital Technologies"],
-};
 
 type FormState = {
   title: string;
@@ -28,13 +19,12 @@ type FormState = {
   price: string;
   isFree: boolean;
   description: string;
-  acStrands: string[];
   pageCount: string;
 };
 
 const EMPTY_FORM: FormState = {
   title: "", subject: "", yearFrom: "", yearTo: "", type: "",
-  price: "", isFree: false, description: "", acStrands: [], pageCount: "",
+  price: "", isFree: false, description: "", pageCount: "",
 };
 
 export default function UploadForm() {
@@ -54,15 +44,24 @@ export default function UploadForm() {
   };
   const selectStyle: CSSProperties = { ...inputStyle, cursor: "pointer" };
 
-  const toggleStrand = (st: string) =>
-    set("acStrands", form.acStrands.includes(st) ? form.acStrands.filter((x) => x !== st) : [...form.acStrands, st]);
+  const validate = (): string | null => {
+    if (!form.title.trim()) return "Add a title (step 1)";
+    if (!form.subject) return "Pick a subject (step 1)";
+    if (!form.type) return "Pick a resource type (step 1)";
+    if (!form.yearFrom) return "Pick a year group (step 1)";
+    if (!form.isFree && (!form.price || parseFloat(form.price) <= 0)) return "Set a price or mark as free (step 1)";
+    if (!file) return "Attach a PDF (step 3)";
+    if (!form.pageCount || parseInt(form.pageCount, 10) <= 0) return "Add the page count (step 3)";
+    return null;
+  };
 
   const handlePublish = async () => {
-    if (!file) {
-      setPublishError("Please attach a PDF in step 3");
-      setStep(2);
+    const validationError = validate();
+    if (validationError) {
+      setPublishError(validationError);
       return;
     }
+    if (!file) return; // narrowed by validate
     setPublishing(true);
     setPublishError(null);
     try {
@@ -189,42 +188,14 @@ export default function UploadForm() {
           {step === 1 && (
             <div style={s.stepBody}>
               <h2 style={s.stepTitle}>Curriculum alignment</h2>
-              <p style={s.stepSub}>Tag this resource with the Australian Curriculum v9.0 strands it covers — buyers use this to find what they need.</p>
-              <div style={{ marginBottom: "20px", padding: "12px 14px", background: "#E8F5F3", borderRadius: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontSize: "20px" }}>🇦🇺</span>
-                <div style={{ fontSize: "13px", fontFamily: "'DM Sans', sans-serif", color: "#1A1714" }}>
-                  <strong>Australian Curriculum v9.0</strong> — all Sprout resources are aligned to AC v9.0.
+              <p style={s.stepSub}>All Sprout resources are aligned to the Australian Curriculum v9.0 — no further tagging needed.</p>
+              <div style={{ padding: "16px 18px", background: "#E8F5F3", borderRadius: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
+                <span style={{ fontSize: "24px" }}>🇦🇺</span>
+                <div style={{ fontSize: "14px", fontFamily: "'DM Sans', sans-serif", color: "#1A1714" }}>
+                  <strong>Australian Curriculum v9.0</strong> · {form.subject || "subject TBC"} · {form.yearFrom || "year TBC"}
+                  {form.yearTo && form.yearTo !== form.yearFrom ? `–${form.yearTo}` : ""}
                 </div>
               </div>
-              {form.subject && (acStrands[form.subject] ?? []).length > 0 && (
-                <div>
-                  <label style={s.label}>AC v9.0 strands (select all that apply)</label>
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                    {(acStrands[form.subject] ?? []).map((str) => (
-                      <button
-                        key={str}
-                        type="button"
-                        style={{
-                          padding: "6px 14px", borderRadius: "9999px",
-                          border: `1.5px solid ${form.acStrands.includes(str) ? "#2A9D8F" : "#D6CFC6"}`,
-                          background: form.acStrands.includes(str) ? "#E8F5F3" : "#fff",
-                          color: form.acStrands.includes(str) ? "#2A9D8F" : "#635C55",
-                          fontSize: "13px", fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                          cursor: "pointer", transition: "all 150ms",
-                        }}
-                        onClick={() => toggleStrand(str)}
-                      >
-                        {str}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {!form.subject && (
-                <p style={{ fontSize: "13px", color: "#9E958A", fontFamily: "'DM Sans', sans-serif" }}>
-                  Pick a subject in step 1 to see relevant strands.
-                </p>
-              )}
             </div>
           )}
 
@@ -292,7 +263,7 @@ export default function UploadForm() {
                   ["Subject & type", !!(form.subject && form.type)],
                   ["Year group", !!form.yearFrom],
                   ["Pricing set", !!(form.isFree || form.price)],
-                  ["AC strands tagged", form.acStrands.length > 0],
+                  ["Description added", !!form.description.trim()],
                   ["File attached", !!file],
                 ].map(([label, ok]) => (
                   <div key={String(label)} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 0", borderBottom: "1px solid #F7F3EE" }}>

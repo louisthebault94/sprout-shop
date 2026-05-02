@@ -17,6 +17,7 @@ export type Resource = {
   pageCount: number;
   isNew: boolean;
   curriculum: Curriculum;
+  description: string | null;
 };
 
 export const SUBJECT_COLORS: Record<string, { bg: string; color: string; thumb: string; icon: string }> = {
