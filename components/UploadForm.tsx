@@ -87,10 +87,6 @@ export default function UploadForm() {
         access: "public",
         handleUploadUrl: "/api/upload",
         clientPayload: JSON.stringify(payload),
-        // Multipart splits the file into ~5MB chunks uploaded in parallel,
-        // each chunk retries on failure. Without this a single 30MB PUT
-        // can stall near the end on flaky connections.
-        multipart: true,
         onUploadProgress: ({ percentage }) => {
           console.log(`[upload] ${percentage.toFixed(1)}%`);
           setUploadProgress(percentage);
