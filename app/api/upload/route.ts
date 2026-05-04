@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { revalidatePath } from "next/cache";
 import { isAdmin } from "@/lib/admin";
 import { sql } from "@/lib/db";
 
@@ -60,6 +61,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             )
           `;
           console.log("[/api/upload] INSERT ok for", meta.title);
+          // Bust the ISR cache so the new resource shows immediately on
+          // the home page and browse page.
+          revalidatePath("/");
+          revalidatePath("/browse");
         } catch (err) {
           console.error("[/api/upload] INSERT failed", err);
           throw err;
