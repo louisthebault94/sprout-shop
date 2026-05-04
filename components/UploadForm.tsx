@@ -34,6 +34,7 @@ export default function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -64,6 +65,8 @@ export default function UploadForm() {
     if (!file) return; // narrowed by validate
     setPublishing(true);
     setPublishError(null);
+    setUploadProgress(0);
+    console.log("[upload] starting", { name: file.name, size: file.size, type: file.type });
     try {
       const yearGroup =
         form.yearTo && form.yearTo !== form.yearFrom ? `${form.yearFrom}–${form.yearTo}` : form.yearFrom;
@@ -80,18 +83,26 @@ export default function UploadForm() {
         pageCount: parseInt(form.pageCount, 10) || 0,
       };
 
-      await upload(file.name, file, {
+      const result = await upload(file.name, file, {
         access: "public",
         handleUploadUrl: "/api/upload",
         clientPayload: JSON.stringify(payload),
+        onUploadProgress: ({ percentage }) => {
+          console.log(`[upload] ${percentage.toFixed(1)}%`);
+          setUploadProgress(percentage);
+        },
       });
 
+      console.log("[upload] complete", result);
+      setUploadProgress(100);
       router.push("/browse");
       router.refresh();
     } catch (err) {
+      console.error("[upload] failed", err);
       const msg = err instanceof Error ? err.message : "Upload failed";
       setPublishError(msg);
       setPublishing(false);
+      setUploadProgress(null);
     }
   };
 
@@ -289,7 +300,13 @@ export default function UploadForm() {
               <button style={s.btnPrimary} onClick={() => setStep((x) => x + 1)}>Continue →</button>
             ) : (
               <button style={{ ...s.btnPrimary, opacity: publishing ? 0.7 : 1 }} onClick={handlePublish} disabled={publishing}>
-                {publishing ? "Publishing…" : "🌱 Publish resource"}
+                {publishing
+                  ? uploadProgress === null
+                    ? "Starting…"
+                    : uploadProgress < 100
+                      ? `Uploading ${uploadProgress.toFixed(0)}%`
+                      : "Saving…"
+                  : "🌱 Publish resource"}
               </button>
             )}
           </div>

@@ -27,39 +27,49 @@ function parseClientPayload(json: string | null | undefined): ResourcePayload {
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = (await req.json()) as HandleUploadBody;
+  console.log("[/api/upload] incoming", { type: body.type });
 
   try {
     const result = await handleUpload({
       body,
       request: req,
       onBeforeGenerateToken: async () => {
-        if (!(await isAdmin())) {
+        const admin = await isAdmin();
+        console.log("[/api/upload] onBeforeGenerateToken admin=", admin);
+        if (!admin) {
           throw new Error("Only admins can upload resources");
         }
         return {
           allowedContentTypes: ["application/pdf"],
           maximumSizeInBytes: 100 * 1024 * 1024, // 100 MB
           addRandomSuffix: true,
-          // The client passes the form metadata via `clientPayload`.
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        const meta = parseClientPayload(tokenPayload);
-        const finalPrice = meta.isFree ? 0 : Number(meta.price) || 0;
-        await sql`
-          INSERT INTO resources (
-            title, subject, type, year_group, price, page_count,
-            state, is_new, curriculum, description, file_path
-          ) VALUES (
-            ${meta.title}, ${meta.subject}, ${meta.type}, ${meta.yearGroup}, ${finalPrice}, ${meta.pageCount},
-            ${finalPrice === 0 ? "free" : "default"}, true, ${meta.curriculum}, ${meta.description}, ${blob.url}
-          )
-        `;
+        console.log("[/api/upload] onUploadCompleted", { url: blob.url });
+        try {
+          const meta = parseClientPayload(tokenPayload);
+          const finalPrice = meta.isFree ? 0 : Number(meta.price) || 0;
+          await sql`
+            INSERT INTO resources (
+              title, subject, type, year_group, price, page_count,
+              state, is_new, curriculum, description, file_path
+            ) VALUES (
+              ${meta.title}, ${meta.subject}, ${meta.type}, ${meta.yearGroup}, ${finalPrice}, ${meta.pageCount},
+              ${finalPrice === 0 ? "free" : "default"}, true, ${meta.curriculum}, ${meta.description}, ${blob.url}
+            )
+          `;
+          console.log("[/api/upload] INSERT ok for", meta.title);
+        } catch (err) {
+          console.error("[/api/upload] INSERT failed", err);
+          throw err;
+        }
       },
     });
 
     return NextResponse.json(result);
   } catch (err) {
+    console.error("[/api/upload] handler error", err);
     const msg = err instanceof Error ? err.message : "Upload failed";
     return NextResponse.json({ error: msg }, { status: 400 });
   }
