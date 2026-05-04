@@ -84,7 +84,7 @@ export default function UploadForm() {
       };
 
       const result = await upload(file.name, file, {
-        access: "public",
+        access: "private",
         handleUploadUrl: "/api/upload",
         clientPayload: JSON.stringify(payload),
         onUploadProgress: ({ percentage }) => {
