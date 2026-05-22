@@ -18,6 +18,7 @@ export type Resource = {
   isNew: boolean;
   curriculum: Curriculum;
   description: string | null;
+  previewPath: string | null;
 };
 
 export const SUBJECT_COLORS: Record<string, { bg: string; color: string; thumb: string; icon: string }> = {

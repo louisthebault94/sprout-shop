@@ -19,6 +19,7 @@ type ResourceRow = {
   is_new: boolean;
   curriculum: string;
   description: string | null;
+  preview_path: string | null;
 };
 
 function rowToResource(r: ResourceRow): Resource {
@@ -36,6 +37,7 @@ function rowToResource(r: ResourceRow): Resource {
     isNew: r.is_new,
     curriculum: r.curriculum as Curriculum,
     description: r.description,
+    previewPath: r.preview_path,
   };
 }
 
@@ -47,7 +49,7 @@ const SELECT_BASE = `
     r.id, r.title, r.subject, r.type, r.year_group, r.price,
     COALESCE(rv.avg_rating, 0)::numeric(3,2) AS rating,
     COALESCE(rv.cnt, 0)                       AS review_count,
-    r.state, r.page_count, r.is_new, r.curriculum, r.description
+    r.state, r.page_count, r.is_new, r.curriculum, r.description, r.preview_path
   FROM resources r
   LEFT JOIN (
     SELECT resource_id, AVG(rating)::numeric(3,2) AS avg_rating, COUNT(*) AS cnt

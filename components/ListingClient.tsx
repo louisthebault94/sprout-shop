@@ -106,13 +106,43 @@ export default function ListingClient({
 
         <div style={s.layout} className="listing-layout">
           <div style={s.leftCol} className="listing-left">
-            <div style={{ ...s.previewBox, background: `linear-gradient(135deg, ${sc.bg}, #fff)` }} className="listing-preview-box">
-              <span style={{ fontSize: "72px", filter: paywallState === "locked" ? "blur(2px)" : "none", transition: "filter 300ms" }}>
-                {sc.icon}
-              </span>
+            <div
+              style={{
+                ...s.previewBox,
+                background: resource.previewPath ? "#fff" : `linear-gradient(135deg, ${sc.bg}, #fff)`,
+                height: resource.previewPath ? "auto" : s.previewBox.height,
+                minHeight: resource.previewPath ? "320px" : undefined,
+                alignItems: resource.previewPath ? "flex-start" : "center",
+                padding: resource.previewPath ? 0 : undefined,
+              }}
+              className="listing-preview-box"
+            >
+              {resource.previewPath ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={resource.previewPath}
+                    alt={`${resource.title} preview`}
+                    style={{
+                      width: "100%",
+                      display: "block",
+                      filter: paywallState === "locked" ? "blur(0px)" : "none",
+                    }}
+                  />
+                  {paywallState !== "purchased" && (
+                    <div style={s.fadeOverlay} aria-hidden="true" />
+                  )}
+                </>
+              ) : (
+                <span style={{ fontSize: "72px", filter: paywallState === "locked" ? "blur(2px)" : "none", transition: "filter 300ms" }}>
+                  {sc.icon}
+                </span>
+              )}
               {paywallState === "locked" && (
                 <div style={s.previewOverlay}>
-                  <div style={s.lockPill}>🔒 Pages 3–{resource.pageCount} locked</div>
+                  <div style={s.lockPill}>
+                    {resource.previewPath ? "🔒 Preview only — unlock to download" : `🔒 Pages 3–${resource.pageCount} locked`}
+                  </div>
                 </div>
               )}
               {paywallState === "purchased" && (
@@ -473,6 +503,9 @@ const s: Record<string, CSSProperties> = {
   leftCol: { position: "sticky", top: "80px" },
   previewBox: { borderRadius: "20px", border: "1px solid #EDE8E2", height: "320px", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", marginBottom: "12px" },
   previewOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, height: "90px", background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.95))", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "14px" },
+  // Sits on top of the preview image to hide the bottom ~2/3 of the page —
+  // buyers see the top portion clearly, then a soft fade to white.
+  fadeOverlay: { position: "absolute", top: "33%", left: 0, right: 0, bottom: 0, background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.85) 30%, rgba(255,255,255,1) 70%)", pointerEvents: "none" },
   lockPill: { background: "rgba(26,23,20,0.65)", color: "#fff", padding: "6px 16px", borderRadius: "9999px", fontSize: "12px", fontWeight: 700, backdropFilter: "blur(6px)", fontFamily: "'DM Sans', sans-serif" },
   previewMeta: { display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap" },
   metaChip: { fontSize: "12px", color: "#635C55", background: "#F7F3EE", padding: "4px 10px", borderRadius: "9999px", fontFamily: "'DM Sans', sans-serif" },

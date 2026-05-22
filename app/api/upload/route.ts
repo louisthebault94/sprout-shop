@@ -4,7 +4,20 @@ import { revalidatePath } from "next/cache";
 import { isAdmin } from "@/lib/admin";
 import { sql } from "@/lib/db";
 
+/**
+ * The /api/upload route handles two kinds of client-direct blob uploads:
+ *
+ *   kind = "preview"  → small PNG of PDF page 1, no DB row.
+ *                       Just returns a blob URL the client can pass back.
+ *   kind = "resource" → the actual PDF + form metadata + previewUrl.
+ *                       The onUploadCompleted callback INSERTs the resource
+ *                       row, linking to both file_path and preview_path.
+ */
+
+type PreviewPayload = { kind: "preview" };
+
 type ResourcePayload = {
+  kind: "resource";
   title: string;
   subject: string;
   type: string;
@@ -14,18 +27,20 @@ type ResourcePayload = {
   description: string;
   curriculum: "AU";
   pageCount: number;
+  previewUrl: string | null;
 };
 
-function parseClientPayload(json: string | null | undefined): ResourcePayload {
+type Payload = PreviewPayload | ResourcePayload;
+
+function parsePayload(json: string | null | undefined): Payload {
   if (!json) throw new Error("Missing client payload");
-  return JSON.parse(json) as ResourcePayload;
+  const parsed = JSON.parse(json);
+  if (parsed?.kind !== "preview" && parsed?.kind !== "resource") {
+    throw new Error("Invalid client payload kind");
+  }
+  return parsed as Payload;
 }
 
-/**
- * Vercel Blob client-upload handler.
- *  - onBeforeGenerateToken: gate token issuance to admins only
- *  - onUploadCompleted: insert the resource row once the file lands in Blob
- */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = (await req.json()) as HandleUploadBody;
   console.log("[/api/upload] incoming", { type: body.type });
@@ -34,11 +49,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const result = await handleUpload({
       body,
       request: req,
-      onBeforeGenerateToken: async () => {
+      onBeforeGenerateToken: async (_pathname, clientPayloadJson) => {
         const admin = await isAdmin();
         console.log("[/api/upload] onBeforeGenerateToken admin=", admin);
-        if (!admin) {
-          throw new Error("Only admins can upload resources");
+        if (!admin) throw new Error("Only admins can upload resources");
+
+        const payload = parsePayload(clientPayloadJson);
+        if (payload.kind === "preview") {
+          return {
+            allowedContentTypes: ["image/png", "image/jpeg"],
+            maximumSizeInBytes: 10 * 1024 * 1024, // 10 MB — previews are small
+            addRandomSuffix: true,
+          };
         }
         return {
           allowedContentTypes: ["application/pdf"],
@@ -47,22 +69,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        console.log("[/api/upload] onUploadCompleted", { url: blob.url });
+        const payload = parsePayload(tokenPayload);
+        if (payload.kind === "preview") {
+          // Preview uploads don't trigger an INSERT — the URL is returned
+          // to the client, which passes it back with the main PDF.
+          console.log("[/api/upload] preview ready", { url: blob.url });
+          return;
+        }
+
+        const finalPrice = payload.isFree ? 0 : Number(payload.price) || 0;
         try {
-          const meta = parseClientPayload(tokenPayload);
-          const finalPrice = meta.isFree ? 0 : Number(meta.price) || 0;
           await sql`
             INSERT INTO resources (
               title, subject, type, year_group, price, page_count,
-              state, is_new, curriculum, description, file_path
+              state, is_new, curriculum, description, file_path, preview_path
             ) VALUES (
-              ${meta.title}, ${meta.subject}, ${meta.type}, ${meta.yearGroup}, ${finalPrice}, ${meta.pageCount},
-              ${finalPrice === 0 ? "free" : "default"}, true, ${meta.curriculum}, ${meta.description}, ${blob.url}
+              ${payload.title}, ${payload.subject}, ${payload.type}, ${payload.yearGroup},
+              ${finalPrice}, ${payload.pageCount},
+              ${finalPrice === 0 ? "free" : "default"}, true, ${payload.curriculum},
+              ${payload.description}, ${blob.url}, ${payload.previewUrl}
             )
           `;
-          console.log("[/api/upload] INSERT ok for", meta.title);
-          // Bust the ISR cache so the new resource shows immediately on
-          // the home page and browse page.
+          console.log("[/api/upload] INSERT ok for", payload.title);
           revalidatePath("/");
           revalidatePath("/browse");
         } catch (err) {

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, CSSProperties, Fragment } from "react";
 import { upload } from "@vercel/blob/client";
+import { renderPdfFirstPageAsPng } from "@/lib/pdf-preview";
 
 const UPLOAD_STEPS = ["Details", "Curriculum", "Files", "Preview & publish"];
 
@@ -35,6 +36,7 @@ export default function UploadForm() {
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [previewStage, setPreviewStage] = useState<"idle" | "rendering" | "uploading-preview" | "uploading-pdf">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -71,7 +73,32 @@ export default function UploadForm() {
       const yearGroup =
         form.yearTo && form.yearTo !== form.yearFrom ? `${form.yearFrom}–${form.yearTo}` : form.yearFrom;
 
+      // 1. Render PDF page 1 to PNG in the browser. If it fails, we still
+      // publish — preview is nice-to-have, not required.
+      let previewUrl: string | null = null;
+      try {
+        setPreviewStage("rendering");
+        console.log("[upload] rendering preview");
+        const png = await renderPdfFirstPageAsPng(file);
+        console.log("[upload] preview rendered", { size: png.size });
+
+        setPreviewStage("uploading-preview");
+        const previewName = file.name.replace(/\.pdf$/i, "") + "-preview.png";
+        const previewBlob = await upload(previewName, png, {
+          access: "private",
+          handleUploadUrl: "/api/upload",
+          clientPayload: JSON.stringify({ kind: "preview" }),
+        });
+        previewUrl = previewBlob.url;
+        console.log("[upload] preview uploaded", { url: previewUrl });
+      } catch (previewErr) {
+        console.warn("[upload] preview generation failed — publishing without preview", previewErr);
+      }
+
+      // 2. Upload the main PDF. onUploadCompleted INSERTs the resource row
+      // including the preview URL we just got.
       const payload = {
+        kind: "resource" as const,
         title: form.title,
         subject: form.subject,
         type: form.type,
@@ -81,8 +108,10 @@ export default function UploadForm() {
         description: form.description,
         curriculum: "AU" as const,
         pageCount: parseInt(form.pageCount, 10) || 0,
+        previewUrl,
       };
 
+      setPreviewStage("uploading-pdf");
       const result = await upload(file.name, file, {
         access: "private",
         handleUploadUrl: "/api/upload",
@@ -103,6 +132,7 @@ export default function UploadForm() {
       setPublishError(msg);
       setPublishing(false);
       setUploadProgress(null);
+      setPreviewStage("idle");
     }
   };
 
@@ -300,13 +330,15 @@ export default function UploadForm() {
               <button style={s.btnPrimary} onClick={() => setStep((x) => x + 1)}>Continue →</button>
             ) : (
               <button style={{ ...s.btnPrimary, opacity: publishing ? 0.7 : 1 }} onClick={handlePublish} disabled={publishing}>
-                {publishing
-                  ? uploadProgress === null
-                    ? "Starting…"
-                    : uploadProgress < 100
-                      ? `Uploading ${uploadProgress.toFixed(0)}%`
-                      : "Saving…"
-                  : "🌱 Publish resource"}
+                {!publishing
+                  ? "🌱 Publish resource"
+                  : previewStage === "rendering"
+                    ? "Rendering preview…"
+                    : previewStage === "uploading-preview"
+                      ? "Uploading preview…"
+                      : uploadProgress === null || uploadProgress < 100
+                        ? `Uploading PDF ${uploadProgress?.toFixed(0) ?? 0}%`
+                        : "Saving…"}
               </button>
             )}
           </div>
