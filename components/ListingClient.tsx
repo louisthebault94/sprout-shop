@@ -9,6 +9,7 @@ import type { Resource, ResourceState } from "@/lib/resource-types";
 import { SUBJECT_COLORS } from "@/lib/resource-types";
 import type { Review } from "@/lib/reviews";
 import { submitReview } from "@/app/r/[id]/actions";
+import DeleteResourceButton from "./DeleteResourceButton";
 
 type RatingBreakdown = Record<1 | 2 | 3 | 4 | 5, number>;
 
@@ -187,6 +188,10 @@ export default function ListingClient({
             </div>
 
             <h1 style={s.title} className="listing-title">{resource.title}</h1>
+
+            <div style={{ marginBottom: "14px" }}>
+              <DeleteResourceButton resourceId={resource.id} resourceTitle={resource.title} />
+            </div>
 
             <div style={s.ratingRow}>
               <span style={{ color: "#F4A261", fontSize: "18px", letterSpacing: "2px" }}>

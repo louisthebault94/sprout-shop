@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { hasUserPurchased } from "@/lib/purchases";
 import { createReview, userHasReviewed } from "@/lib/reviews";
+import { isAdmin } from "@/lib/admin";
+import { sql } from "@/lib/db";
 
 export type SubmitReviewResult = { ok: true } | { ok: false; error: string };
 
@@ -47,3 +49,35 @@ export async function submitReview(
   revalidatePath(`/r/${resourceId}`);
   return { ok: true };
 }
+
+export type DeleteResourceResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Soft-delete a resource — sets resources.deleted_at = NOW().
+ * The blob file and DB row stay intact so existing buyers can still
+ * download via their library. Public browse/listing pages stop showing it.
+ */
+export async function deleteResource(resourceId: number): Promise<DeleteResourceResult> {
+  if (!(await isAdmin())) {
+    return { ok: false, error: "Admin only" };
+  }
+  if (!Number.isInteger(resourceId) || resourceId < 1) {
+    return { ok: false, error: "Invalid resource id" };
+  }
+
+  const result = (await sql`
+    UPDATE resources SET deleted_at = now()
+    WHERE id = ${resourceId} AND deleted_at IS NULL
+    RETURNING id
+  `) as { id: number }[];
+
+  if (result.length === 0) {
+    return { ok: false, error: "Resource not found (or already deleted)" };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/browse");
+  revalidatePath(`/r/${resourceId}`);
+  return { ok: true };
+}
+

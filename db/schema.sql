@@ -17,10 +17,12 @@ CREATE TABLE IF NOT EXISTS resources (
   file_path    TEXT,
   preview_path TEXT,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deleted_at   TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS resources_subject_idx     ON resources (subject);
+CREATE INDEX IF NOT EXISTS resources_deleted_idx     ON resources (deleted_at) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS resources_curriculum_idx  ON resources (curriculum);
 CREATE INDEX IF NOT EXISTS resources_created_at_idx  ON resources (created_at DESC);
 

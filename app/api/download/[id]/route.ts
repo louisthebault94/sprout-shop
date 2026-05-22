@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getDownloadUrl } from "@vercel/blob";
-import { getResource } from "@/lib/resources";
+import { getResourceIncludingDeleted } from "@/lib/resources";
 import { hasUserPurchased } from "@/lib/purchases";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -11,7 +11,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Bad id" }, { status: 400 });
   }
 
-  const resource = await getResource(numericId);
+  // Use the deleted-inclusive lookup so buyers who paid for a now-removed
+  // resource can still download from their library.
+  const resource = await getResourceIncludingDeleted(numericId);
   if (!resource) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

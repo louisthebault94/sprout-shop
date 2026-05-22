@@ -58,12 +58,27 @@ const SELECT_BASE = `
   ) rv ON rv.resource_id = r.id
 `;
 
+// Public-facing queries — hide soft-deleted resources.
 export async function listResources(): Promise<Resource[]> {
-  const rows = (await sql.query(`${SELECT_BASE} ORDER BY r.id`)) as ResourceRow[];
+  const rows = (await sql.query(
+    `${SELECT_BASE} WHERE r.deleted_at IS NULL ORDER BY r.id`,
+  )) as ResourceRow[];
   return rows.map(rowToResource);
 }
 
 export async function getResource(id: number): Promise<Resource | undefined> {
+  const rows = (await sql.query(
+    `${SELECT_BASE} WHERE r.id = $1 AND r.deleted_at IS NULL LIMIT 1`,
+    [id],
+  )) as ResourceRow[];
+  return rows[0] ? rowToResource(rows[0]) : undefined;
+}
+
+/**
+ * Used for download access — a buyer who paid before the resource was
+ * soft-deleted must still be able to fetch it from their library.
+ */
+export async function getResourceIncludingDeleted(id: number): Promise<Resource | undefined> {
   const rows = (await sql.query(`${SELECT_BASE} WHERE r.id = $1 LIMIT 1`, [id])) as ResourceRow[];
   return rows[0] ? rowToResource(rows[0]) : undefined;
 }
