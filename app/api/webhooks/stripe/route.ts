@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { recordPurchase } from "@/lib/purchases";
 
 // Webhooks must read the raw body to verify the signature. Do not parse as JSON.
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(rawBody, sig, secret);
+    event = getStripe().webhooks.constructEvent(rawBody, sig, secret);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown signature error";
     return NextResponse.json({ error: `Webhook signature verification failed: ${msg}` }, { status: 400 });
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Fetch line items so we can attribute amounts per resource.
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
+    const lineItems = await getStripe().checkout.sessions.listLineItems(session.id, { limit: 100 });
     const currency = (session.currency ?? "aud").toUpperCase();
 
     for (const id of resourceIds) {
